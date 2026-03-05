@@ -13,5 +13,11 @@ From the repo root:
 
 ```bash
 scripts/run_examples.sh
+scripts/eval_examples.sh
+```
+
+If you prefer calling the evaluator directly:
+
+```bash
 uv run --project tools/example_eval example-eval evaluate --repo-root .
 ```

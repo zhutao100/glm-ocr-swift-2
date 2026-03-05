@@ -20,6 +20,10 @@ let package = Package(
             name: "GlmOCRBenchmark",
             targets: ["GlmOCRBenchmark"]
         ),
+        .executable(
+            name: "GlmOCRCLI",
+            targets: ["GlmOCRCLI"]
+        ),
     ],
     dependencies: [
         .package(
@@ -109,6 +113,13 @@ let package = Package(
         ),
         .executableTarget(
             name: "GlmOCRBenchmark",
+            dependencies: [
+                "GlmOCRSwift"
+            ],
+            swiftSettings: strictConcurrency
+        ),
+        .executableTarget(
+            name: "GlmOCRCLI",
             dependencies: [
                 "GlmOCRSwift"
             ],

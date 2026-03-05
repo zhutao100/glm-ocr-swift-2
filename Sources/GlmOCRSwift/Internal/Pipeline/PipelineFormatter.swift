@@ -113,9 +113,11 @@ internal struct PipelineFormatter: Sendable {
         var blocks: [String] = []
         blocks.reserveCapacity(regions.count)
 
+        var imageIndex = 0
         for region in regions {
             if region.label == "image", let bbox = region.bbox2D {
-                blocks.append("![](page=\(pageIndex),bbox=\(bbox))")
+                blocks.append("![Image \(pageIndex)-\(imageIndex)](page=\(pageIndex),bbox=\(bbox))")
+                imageIndex += 1
                 continue
             }
 

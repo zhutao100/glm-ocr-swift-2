@@ -89,6 +89,7 @@ PDF page limits are resolved as:
 - `enableLayout`: `true`
 - `markdownBundle.enabled`: `true`
 - `markdownBundle.figureFormat`: `heic`
+- `markdownBundle.figureNamingScheme`: `pageRegionPadded`
 - `markdownBundle.markdownFileName`: `document.md`
 - `markdownBundle.jsonFileName`: `document.json`
 - `markdownBundle.figuresDirectoryName`: `figures`

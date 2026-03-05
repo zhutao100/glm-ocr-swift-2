@@ -19,8 +19,8 @@ final class MarkdownBundleExportTests: XCTestCase {
 
         XCTAssertEqual(result.markdown, bundle.rewrittenMarkdown)
         XCTAssertFalse(result.markdown.localizedStandardContains("bbox="))
-        XCTAssertTrue(result.markdown.localizedStandardContains("figures/page_0001_region_0001.heic"))
-        XCTAssertTrue(result.markdown.localizedStandardContains("figures/page_0001_region_0002.heic"))
+        XCTAssertTrue(result.markdown.localizedStandardContains("![Image 0-0](figures/page_0001_region_0001.heic)"))
+        XCTAssertTrue(result.markdown.localizedStandardContains("![Image 0-1](figures/page_0001_region_0002.heic)"))
 
         for figure in bundle.figures {
             XCTAssertEqual(figure.mimeType, "image/heic")
@@ -54,6 +54,7 @@ final class MarkdownBundleExportTests: XCTestCase {
         XCTAssertNil(result.markdownBundle)
         XCTAssertTrue(result.markdown.localizedStandardContains("bbox=["))
         XCTAssertTrue(result.markdown.localizedStandardContains("page=0"))
+        XCTAssertTrue(result.markdown.localizedStandardContains("![Image 0-0]("))
     }
 
     func testNoLayoutDoesNotProduceBundleEvenWhenEnabled() async throws {

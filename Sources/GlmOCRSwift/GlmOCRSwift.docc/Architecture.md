@@ -109,7 +109,7 @@ Formatting includes:
 - heading normalization (`doc_title`, `paragraph_title`)
 - formula block normalization and formula-number tag merge
 - text cleanup and bullet normalization
-- default image placeholders (`![](page=...,bbox=...)`) that are rewritten when markdown bundle export is enabled
+- default image placeholders (`![Image <page>-<idx>](page=...,bbox=...)`) that are rewritten when markdown bundle export is enabled
 
 ## Diagnostics and warnings
 

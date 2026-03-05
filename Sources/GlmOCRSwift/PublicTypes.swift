@@ -325,11 +325,14 @@ public struct GlmOCRLayoutConfig: Sendable, Codable, Equatable {
 
 public enum GlmOCRFigureFormat: String, Sendable, Codable, Equatable {
     case heic
+    case jpeg
 
     internal var fileExtension: String {
         switch self {
         case .heic:
             return "heic"
+        case .jpeg:
+            return "jpg"
         }
     }
 
@@ -337,13 +340,21 @@ public enum GlmOCRFigureFormat: String, Sendable, Codable, Equatable {
         switch self {
         case .heic:
             return "image/heic"
+        case .jpeg:
+            return "image/jpeg"
         }
     }
+}
+
+public enum GlmOCRFigureNamingScheme: String, Sendable, Codable, Equatable {
+    case pageRegionPadded
+    case upstreamCropped
 }
 
 public struct GlmOCRMarkdownBundleConfig: Sendable, Codable, Equatable {
     public var enabled: Bool
     public var figureFormat: GlmOCRFigureFormat
+    public var figureNamingScheme: GlmOCRFigureNamingScheme
     public var markdownFileName: String
     public var jsonFileName: String
     public var figuresDirectoryName: String
@@ -352,6 +363,7 @@ public struct GlmOCRMarkdownBundleConfig: Sendable, Codable, Equatable {
     public init(
         enabled: Bool = true,
         figureFormat: GlmOCRFigureFormat = .heic,
+        figureNamingScheme: GlmOCRFigureNamingScheme = .pageRegionPadded,
         markdownFileName: String = "document.md",
         jsonFileName: String = "document.json",
         figuresDirectoryName: String = "figures",
@@ -359,6 +371,7 @@ public struct GlmOCRMarkdownBundleConfig: Sendable, Codable, Equatable {
     ) {
         self.enabled = enabled
         self.figureFormat = figureFormat
+        self.figureNamingScheme = figureNamingScheme
         self.markdownFileName = markdownFileName
         self.jsonFileName = jsonFileName
         self.figuresDirectoryName = figuresDirectoryName
@@ -394,6 +407,7 @@ public struct GlmOCRMarkdownBundleConfig: Sendable, Codable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case enabled
         case figureFormat
+        case figureNamingScheme
         case markdownFileName
         case jsonFileName
         case figuresDirectoryName
@@ -407,6 +421,9 @@ public struct GlmOCRMarkdownBundleConfig: Sendable, Codable, Equatable {
         self.figureFormat =
             try container.decodeIfPresent(GlmOCRFigureFormat.self, forKey: .figureFormat)
             ?? defaults.figureFormat
+        self.figureNamingScheme =
+            try container.decodeIfPresent(GlmOCRFigureNamingScheme.self, forKey: .figureNamingScheme)
+            ?? defaults.figureNamingScheme
         self.markdownFileName =
             try container.decodeIfPresent(String.self, forKey: .markdownFileName)
             ?? defaults.markdownFileName

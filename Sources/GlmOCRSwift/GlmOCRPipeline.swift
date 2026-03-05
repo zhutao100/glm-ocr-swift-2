@@ -798,6 +798,7 @@ public actor GlmOCRPipeline {
 
         let limiter = AsyncLimiter(limit: performanceConfig.bundleEncodeConcurrency)
         let figureFormat = config.markdownBundle.figureFormat
+        let figureNamingScheme = config.markdownBundle.figureNamingScheme
         let figuresDirectoryName = config.markdownBundle.figuresDirectoryName
         let heicCompressionQuality = config.markdownBundle.heicCompressionQuality
 
@@ -810,6 +811,7 @@ public actor GlmOCRPipeline {
                             candidate: candidate,
                             pages: pages,
                             figureFormat: figureFormat,
+                            figureNamingScheme: figureNamingScheme,
                             figuresDirectoryName: figuresDirectoryName,
                             heicCompressionQuality: heicCompressionQuality
                         )
@@ -867,6 +869,7 @@ public actor GlmOCRPipeline {
             let sortedRegions = page.regions.sorted { lhs, rhs in
                 lhs.index < rhs.index
             }
+            var pageImageIndex = 0
             for region in sortedRegions {
                 guard region.label == "image", let bbox = region.bbox2D, bbox.count == 4 else {
                     continue
@@ -874,11 +877,13 @@ public actor GlmOCRPipeline {
                 candidates.append(
                     FigureCandidate(
                         pageIndex: pageIndex,
+                        pageImageIndex: pageImageIndex,
                         regionIndex: region.index,
                         label: region.label,
                         bbox2D: bbox
                     )
                 )
+                pageImageIndex += 1
             }
         }
         return candidates
@@ -889,6 +894,7 @@ public actor GlmOCRPipeline {
         candidate: FigureCandidate,
         pages: [CGImage],
         figureFormat: GlmOCRFigureFormat,
+        figureNamingScheme: GlmOCRFigureNamingScheme,
         figuresDirectoryName: String,
         heicCompressionQuality: Double
     ) -> MarkdownBundleFigureOutput {
@@ -928,8 +934,14 @@ public actor GlmOCRPipeline {
             )
         }
 
-        let fileName =
-            "page_\(Self.padded(candidate.pageIndex + 1, width: 4))_region_\(Self.padded(candidate.regionIndex, width: 4)).\(figureFormat.fileExtension)"
+        let fileName: String
+        switch figureNamingScheme {
+        case .pageRegionPadded:
+            fileName =
+                "page_\(Self.padded(candidate.pageIndex + 1, width: 4))_region_\(Self.padded(candidate.regionIndex, width: 4)).\(figureFormat.fileExtension)"
+        case .upstreamCropped:
+            fileName = "cropped_page\(candidate.pageIndex)_idx\(candidate.pageImageIndex).\(figureFormat.fileExtension)"
+        }
         let relativePath = "\(figuresDirectoryName)/\(fileName)"
         let figure = OCRFigureAsset(
             pageIndex: candidate.pageIndex,
@@ -1007,6 +1019,27 @@ public actor GlmOCRPipeline {
                 return nil
             }
             return data as Data
+        case .jpeg:
+            let data = NSMutableData()
+            guard
+                let destination = CGImageDestinationCreateWithData(
+                    data,
+                    UTType.jpeg.identifier as CFString,
+                    1,
+                    nil
+                )
+            else {
+                return nil
+            }
+
+            let options: [CFString: Any] = [
+                kCGImageDestinationLossyCompressionQuality: heicCompressionQuality
+            ]
+            CGImageDestinationAddImage(destination, image, options as CFDictionary)
+            guard CGImageDestinationFinalize(destination) else {
+                return nil
+            }
+            return data as Data
         }
     }
 
@@ -1016,7 +1049,7 @@ public actor GlmOCRPipeline {
     ) -> (markdown: String, warnings: [String]) {
         guard
             let regex = try? NSRegularExpression(
-                pattern: #"\!\[[^\]]*]\(page\s*=\s*\d+\s*,\s*bbox\s*=\s*\[\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\]\)"#,
+                pattern: #"\!\[([^\]]*)]\(page\s*=\s*\d+\s*,\s*bbox\s*=\s*\[\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*\d+\]\)"#,
                 options: []
             )
         else {
@@ -1035,6 +1068,9 @@ public actor GlmOCRPipeline {
         }
 
         let mutable = NSMutableString(string: markdown)
+        if matches.isEmpty {
+            return (markdown, warnings)
+        }
         for index in stride(from: matches.count - 1, through: 0, by: -1) {
             let match = matches[index]
             guard index < figurePathsByCandidate.count else {
@@ -1043,7 +1079,14 @@ public actor GlmOCRPipeline {
             guard let relativePath = figurePathsByCandidate[index] else {
                 continue
             }
-            mutable.replaceCharacters(in: match.range, with: "![](\(relativePath))")
+            let altText: String
+            let altRange = match.range(at: 1)
+            if altRange.location != NSNotFound, altRange.length > 0 {
+                altText = source.substring(with: altRange)
+            } else {
+                altText = ""
+            }
+            mutable.replaceCharacters(in: match.range, with: "![\(altText)](\(relativePath))")
         }
 
         return (mutable as String, warnings)
@@ -1275,6 +1318,7 @@ public actor GlmOCRPipeline {
 
 private struct FigureCandidate: Sendable {
     let pageIndex: Int
+    let pageImageIndex: Int
     let regionIndex: Int
     let label: String
     let bbox2D: [Int]

@@ -1,0 +1,70 @@
+[
+  [
+    {
+      "bbox_2d" : [
+        94,
+        106,
+        901,
+        142
+      ],
+      "content" : "relationship between the beans. The only difference from previous exercises is the change in the JNDI name element tag for the Address home interface:",
+      "index" : 0,
+      "label" : "text"
+    },
+    {
+      "bbox_2d" : [
+        94,
+        147,
+        746,
+        165
+      ],
+      "content" : "```xml\n\n||| <local-jndi-name>AddressHomeLocal<\/local-jndi-name>\n\n```",
+      "index" : 1,
+      "label" : "text"
+    },
+    {
+      "bbox_2d" : [
+        94,
+        177,
+        901,
+        213
+      ],
+      "content" : "Because the Home interface for the Address is local, the tag is `<local-jndi-name>` rather than `<jndi-name>`.",
+      "index" : 2,
+      "label" : "text"
+    },
+    {
+      "bbox_2d" : [
+        94,
+        222,
+        903,
+        276
+      ],
+      "content" : "The **weblogic-emp-rdbms-jar.xml** descriptor file contains a number of new sections and elements in this exercise. A detailed examination of the relationship elements will await the next section.",
+      "index" : 3,
+      "label" : "text"
+    },
+    {
+      "bbox_2d" : [
+        92,
+        283,
+        903,
+        339
+      ],
+      "content" : "The file contains a section mapping the `Address` `<camp-field>` attributes from the `ebi-jar.xml` file to the database columns in the `ANIMADEX` table to a new section related to the database. The key values in this section are the key values in this file.",
+      "index" : 4,
+      "label" : "text"
+    },
+    {
+      "bbox_2d" : [
+        111,
+        345,
+        872,
+        888
+      ],
+      "content" : "```html\n\n<weblogic-rdmms-bean>\n\n    <ejb-name>AddressJUE<\/ejb-name>\n\n    <data-source-name>itran-dataSource<\/data-source-name>\n\n    <table-name>ADDRESS<\/table-name>\n\n    <field-map>\n\n        <cmp-field>id<\/cmp-field>\n\n        <dbms-column>ID<\/dbms-column>\n\n    <\/field-map>\n\n    <field-map>\n\n        <cmp-field>street<\/cmp-field>\n\n        <dbms-column>STREET<\/dbms-column>\n\n    <\/field-map>\n\n    <field-map>\n\n        <cmp-field>city<\/cmp-field>\n\n        <dbms-column>CITY<\/dbms-column>\n\n    <\/field-map>\n\n    <field-map>\n\n        <cmp-field>state<\/cmp-field>\n\n        <dbms-column>STATE<\/dbms-column>\n\n    <\/field-map>\n\n    <field-map>\n\n        <cmp-field>zip<\/cmp-field>\n\n        <dbms-column>ZIP<\/dbms-column>\n\n    <\/field-map>\n\n    <!-- automatically generate the value of ID in the database on\n\ninserts using sequence table -->\n\n    <automatic-key-generation>\n\n        <generator-type>NAMED_SEQUENCE_TABLE<\/generator-type>\n\n        <generator-name>ADDRESS_SEQUENCE<\/generator-name>\n\n        <key-cache-size>\/Key-cache-size>\n\n    <\/automatic-key-generation>\n\n<\/weblogic-rdmms-bean>\n\n```",
+      "index" : 5,
+      "label" : "text"
+    }
+  ]
+]

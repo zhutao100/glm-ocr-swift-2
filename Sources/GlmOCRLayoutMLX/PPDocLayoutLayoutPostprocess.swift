@@ -70,7 +70,8 @@ internal enum PPDocLayoutLayoutPostprocess {
             preservedLabels: PPDocLayoutMLXContract.preservedContainmentLabels
         )
 
-        let sorted = filtered
+        let sorted =
+            filtered
             .enumerated()
             .sorted { lhs, rhs in
                 if lhs.element.order != rhs.element.order {
@@ -186,7 +187,8 @@ internal enum PPDocLayoutLayoutPostprocess {
             var suppressed = false
 
             for existing in kept {
-                let threshold = candidate.clsID == existing.clsID
+                let threshold =
+                    candidate.clsID == existing.clsID
                     ? sameClassIoUThreshold
                     : differentClassIoUThreshold
 
@@ -345,7 +347,7 @@ internal enum PPDocLayoutLayoutPostprocess {
                 }
                 return [
                     max(0, min(imageWidth, point[0])),
-                    max(0, min(imageHeight, point[1]))
+                    max(0, min(imageHeight, point[1])),
                 ]
             }
         }
@@ -358,7 +360,7 @@ internal enum PPDocLayoutLayoutPostprocess {
             [x1, y1],
             [x2, y1],
             [x2, y2],
-            [x1, y2]
+            [x1, y2],
         ]
     }
 
@@ -439,7 +441,7 @@ internal enum PPDocLayoutLayoutPostprocess {
             max(0, min(imageWidth, bbox[0])),
             max(0, min(imageHeight, bbox[1])),
             max(0, min(imageWidth, bbox[2])),
-            max(0, min(imageHeight, bbox[3]))
+            max(0, min(imageHeight, bbox[3])),
         ]
     }
 
@@ -464,7 +466,7 @@ internal enum PPDocLayoutLayoutPostprocess {
             clamp(x1),
             clamp(y1),
             clamp(x2),
-            clamp(y2)
+            clamp(y2),
         ]
     }
 

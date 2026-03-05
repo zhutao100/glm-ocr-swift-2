@@ -1,5 +1,6 @@
 import MLX
 import XCTest
+
 @testable import GlmOCRRecognizerMLX
 
 final class GlmOcrAttentionBackendTests: XCTestCase {

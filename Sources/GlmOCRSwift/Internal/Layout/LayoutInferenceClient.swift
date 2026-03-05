@@ -1,6 +1,5 @@
 import CoreGraphics
 import Foundation
-
 import GlmOCRLayoutMLX
 
 internal struct LayoutDetectionDetailedOutput: Sendable {
@@ -134,7 +133,8 @@ internal actor MLXLayoutInferenceClient: LayoutInferenceClient {
             layoutNMS: layoutConfig.layoutNMS,
             layoutUnclipRatio: layoutConfig.layoutUnclipRatio,
             layoutMergeBBoxesMode: mergeModes.isEmpty
-                ? GlmOCRLayoutConfig.defaultLayoutMergeBBoxesMode.reduce(into: [Int: LayoutMergeMode]()) { partial, pair in
+                ? GlmOCRLayoutConfig.defaultLayoutMergeBBoxesMode.reduce(into: [Int: LayoutMergeMode]()) {
+                    partial, pair in
                     if let mode = LayoutMergeMode(rawValue: pair.value) {
                         partial[pair.key] = mode
                     }

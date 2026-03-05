@@ -1,5 +1,5 @@
-import Foundation
 import CPDFium
+import Foundation
 
 @_cdecl("glmocr_pdfium_destroy_at_exit")
 private func glmocrPDFiumDestroyAtExit() {

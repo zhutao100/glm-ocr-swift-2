@@ -100,15 +100,17 @@ final class OCRInferenceSchedulerTests: XCTestCase {
             pixels[offset + 3] = 255
         }
 
-        guard let context = CGContext(
-            data: &pixels,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: bytesPerRow,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let context = CGContext(
+                data: &pixels,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: bytesPerRow,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             fatalError("Unable to create CGContext")
         }
         guard let image = context.makeImage() else {

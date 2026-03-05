@@ -49,12 +49,12 @@ internal struct PPDocLayoutModel: Sendable {
         var sources: [MLXArray] = []
         sources.reserveCapacity(configuration.numFeatureLevels)
 
-        for level in 0 ..< min(configuration.decoderInChannels.count, encoderOutput.panFeatures.count) {
+        for level in 0..<min(configuration.decoderInChannels.count, encoderOutput.panFeatures.count) {
             sources.append(try decoderInputProjection(encoderOutput.panFeatures[level], level: level))
         }
 
         if configuration.numFeatureLevels > sources.count,
-           let tailFeature = encoderOutput.panFeatures.last
+            let tailFeature = encoderOutput.panFeatures.last
         {
             var nextLevel = sources.count
             while nextLevel < configuration.numFeatureLevels {
@@ -188,8 +188,8 @@ internal struct PPDocLayoutModel: Sendable {
             let width = shape.width
             let wh = gridSize * pow(2, Float(level))
 
-            for y in 0 ..< height {
-                for x in 0 ..< width {
+            for y in 0..<height {
+                for x in 0..<width {
                     let cx = (Float(x) + 0.5) / Float(width)
                     let cy = (Float(y) + 0.5) / Float(height)
 
@@ -259,7 +259,7 @@ internal struct PPDocLayoutModel: Sendable {
     private func mlpHead(_ x: MLXArray, prefix: String, numLayers: Int) throws -> MLXArray {
         var hidden = x
 
-        for layerIndex in 0 ..< numLayers {
+        for layerIndex in 0..<numLayers {
             let weight = try weights.tensor("\(prefix).\(layerIndex).weight")
             let bias = try weights.tensor("\(prefix).\(layerIndex).bias")
             hidden = PPDocLayoutMLXTensorOps.linear(hidden, weight: weight, bias: bias)
@@ -280,13 +280,13 @@ internal struct PPDocLayoutModel: Sendable {
         var result: [[Int]] = []
         result.reserveCapacity(batch)
 
-        for batchIndex in 0 ..< batch {
+        for batchIndex in 0..<batch {
             var scoreIndexPairs: [(score: Float, index: Int)] = []
             scoreIndexPairs.reserveCapacity(sequenceLength)
 
-            for tokenIndex in 0 ..< sequenceLength {
+            for tokenIndex in 0..<sequenceLength {
                 var best = -Float.greatestFiniteMagnitude
-                for classIndex in 0 ..< classCount {
+                for classIndex in 0..<classCount {
                     let flatIndex = (((batchIndex * sequenceLength) + tokenIndex) * classCount) + classIndex
                     let value = values[flatIndex]
                     if value > best {
@@ -320,11 +320,11 @@ internal struct PPDocLayoutModel: Sendable {
         let gatheredCount = indices.first?.count ?? 0
         var gathered = [Float](repeating: 0, count: batch * gatheredCount * featureDim)
 
-        for batchIndex in 0 ..< batch {
+        for batchIndex in 0..<batch {
             for (gatherIndex, sourceIndex) in indices[batchIndex].enumerated() {
                 let boundedSource = min(max(0, sourceIndex), sequenceLength - 1)
 
-                for featureIndex in 0 ..< featureDim {
+                for featureIndex in 0..<featureDim {
                     let sourceFlat = (((batchIndex * sequenceLength) + boundedSource) * featureDim) + featureIndex
                     let targetFlat = (((batchIndex * gatheredCount) + gatherIndex) * featureDim) + featureIndex
                     gathered[targetFlat] = tensorValues[sourceFlat]
@@ -345,15 +345,15 @@ internal struct PPDocLayoutModel: Sendable {
 
         var boxes = [Float](repeating: 0, count: batch * queryCount * 4)
 
-        for batchIndex in 0 ..< batch {
-            for queryIndex in 0 ..< queryCount {
+        for batchIndex in 0..<batch {
+            for queryIndex in 0..<queryCount {
                 var minX = width
                 var minY = height
                 var maxX = -1
                 var maxY = -1
 
-                for y in 0 ..< height {
-                    for x in 0 ..< width {
+                for y in 0..<height {
+                    for x in 0..<width {
                         let flat = (((batchIndex * queryCount + queryIndex) * height + y) * width) + x
                         if values[flat] > 0 {
                             minX = min(minX, x)

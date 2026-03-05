@@ -165,12 +165,12 @@ internal final class GlmOcrRecognizerModel: Module {
         var batchOutputs: [MLXArray] = []
         batchOutputs.reserveCapacity(batchSize)
 
-        for batchIndex in 0 ..< batchSize {
+        for batchIndex in 0..<batchSize {
             let imageMask = imagePositions[batchIndex, 0...]
             let numPositions = imageMask.asType(.int32).sum().item(Int.self)
 
             if numPositions > 0 {
-                let batchFeatures = imageFeatures[featureStartIndex ..< (featureStartIndex + numPositions), 0...]
+                let batchFeatures = imageFeatures[featureStartIndex..<(featureStartIndex + numPositions), 0...]
                 let cumsum = imageMask.asType(.int32).cumsum(axis: -1)
                 let featureIndices = `where`(imageMask, cumsum - MLXArray(1, dtype: .int32), zeros(like: cumsum))
                 let gatheredFeatures = batchFeatures[featureIndices]
@@ -241,11 +241,13 @@ private final class GlmOcrVisionRotaryEmbedding: Module {
     }
 
     func callAsFunction(sequenceLength: Int) -> MLXArray {
-        let invFreq = 1.0 / pow(
-            MLXArray(theta),
-            MLXArray(stride(from: 0, to: dimensions, by: 2)).asType(.float32) / Float(dimensions)
-        )
-        let seq = MLXArray(0 ..< sequenceLength).asType(invFreq.dtype)
+        let invFreq =
+            1.0
+            / pow(
+                MLXArray(theta),
+                MLXArray(stride(from: 0, to: dimensions, by: 2)).asType(.float32) / Float(dimensions)
+            )
+        let seq = MLXArray(0..<sequenceLength).asType(invFreq.dtype)
         return outer(seq, invFreq)
     }
 }
@@ -275,7 +277,8 @@ private final class GlmOcrVisionPatchEmbed: Module, UnaryLayer {
     }
 
     func callAsFunction(_ hiddenStates: MLXArray) -> MLXArray {
-        var hiddenStates = hiddenStates
+        var hiddenStates =
+            hiddenStates
             .reshaped(-1, inChannels, temporalPatchSize, patchSize, patchSize)
             .movedAxis(source: 1, destination: 4)
 
@@ -371,7 +374,7 @@ private final class GlmOcrVisionAttention: Module {
         var lengths: [Int] = []
         lengths.reserveCapacity(max(cuValues.count - 1, 0))
         if cuValues.count > 1 {
-            for index in 0 ..< (cuValues.count - 1) {
+            for index in 0..<(cuValues.count - 1) {
                 lengths.append(cuValues[index + 1] - cuValues[index])
             }
         }
@@ -391,7 +394,7 @@ private final class GlmOcrVisionAttention: Module {
         var outputs: [MLXArray] = []
         outputs.reserveCapacity(qSplits.count)
 
-        for index in 0 ..< qSplits.count {
+        for index in 0..<qSplits.count {
             let attended = glmOcrScaledDotProductAttention(
                 queries: qSplits[index],
                 keys: kSplits[index],
@@ -454,11 +457,13 @@ private final class GlmOcrVisionBlock: Module {
         cuSeqlens: MLXArray,
         positionEmbeddings: (cos: MLXArray, sin: MLXArray)
     ) -> MLXArray {
-        var hiddenStates = hiddenStates + attention(
-            norm1(hiddenStates),
-            cuSeqlens: cuSeqlens,
-            positionEmbeddings: positionEmbeddings
-        )
+        var hiddenStates =
+            hiddenStates
+            + attention(
+                norm1(hiddenStates),
+                cuSeqlens: cuSeqlens,
+                positionEmbeddings: positionEmbeddings
+            )
         hiddenStates = hiddenStates + mlp(norm2(hiddenStates))
         return hiddenStates
     }
@@ -484,7 +489,7 @@ private final class GlmOcrVisionModel: Module {
             dimensions: (config.hiddenSize / config.numHeads) / 2,
             theta: 10_000
         )
-        self._blocks.wrappedValue = (0 ..< config.depth).map { _ in
+        self._blocks.wrappedValue = (0..<config.depth).map { _ in
             GlmOcrVisionBlock(config: config)
         }
         self._merger.wrappedValue = GlmOcrVisionPatchMerger(
@@ -514,16 +519,18 @@ private final class GlmOcrVisionModel: Module {
             let h = Int(row[1])
             let w = Int(row[2])
 
-            var hPos = expandedDimensions(MLXArray(0 ..< h), axis: 1)
+            var hPos = expandedDimensions(MLXArray(0..<h), axis: 1)
             hPos = repeated(hPos, count: w, axis: 1)
-            hPos = hPos
+            hPos =
+                hPos
                 .reshaped(h / spatialMergeSize, spatialMergeSize, w / spatialMergeSize, spatialMergeSize)
                 .transposed(0, 2, 1, 3)
                 .flattened()
 
-            var wPos = expandedDimensions(MLXArray(0 ..< w), axis: 0)
+            var wPos = expandedDimensions(MLXArray(0..<w), axis: 0)
             wPos = repeated(wPos, count: h, axis: 0)
-            wPos = wPos
+            wPos =
+                wPos
                 .reshaped(h / spatialMergeSize, spatialMergeSize, w / spatialMergeSize, spatialMergeSize)
                 .transposed(0, 2, 1, 3)
                 .flattened()
@@ -559,7 +566,7 @@ private final class GlmOcrVisionModel: Module {
             let h = values[index + 1]
             let w = values[index + 2]
             let seqLen = h * w
-            for _ in 0 ..< t {
+            for _ in 0..<t {
                 repeatedValues.append(Int32(seqLen))
             }
             index += 3
@@ -635,10 +642,12 @@ private final class GlmOcrRotaryEmbedding: Module {
         self.attentionScaling = 1.0
         self.mropeSection = config.ropeParameters.mropeSection
 
-        let invFreq = 1.0 / pow(
-            MLXArray(base),
-            MLXArray(stride(from: 0, to: dim, by: 2)).asType(.float32) / Float(dim)
-        )
+        let invFreq =
+            1.0
+            / pow(
+                MLXArray(base),
+                MLXArray(stride(from: 0, to: dim, by: 2)).asType(.float32) / Float(dim)
+            )
         self.invFreq = invFreq.asType(.float32)
     }
 
@@ -871,7 +880,7 @@ private final class GlmOcrTextModel: Module {
 
     init(config: GlmOcrModelConfig.TextConfig) {
         self._embedTokens.wrappedValue = Embedding(embeddingCount: config.vocabSize, dimensions: config.hiddenSize)
-        self._layers.wrappedValue = (0 ..< config.numHiddenLayers).map { _ in
+        self._layers.wrappedValue = (0..<config.numHiddenLayers).map { _ in
             GlmOcrDecoderLayer(config: config)
         }
         self._norm.wrappedValue = RMSNorm(dimensions: config.hiddenSize, eps: config.rmsNormEps)
@@ -978,7 +987,7 @@ private final class GlmOcrLanguageModel: Module {
         let batchSize = inputIDs.dim(0)
         let sequenceLength = inputIDs.dim(1)
 
-        var positionIDs = MLXArray(0 ..< sequenceLength).asType(.int32)
+        var positionIDs = MLXArray(0..<sequenceLength).asType(.int32)
         positionIDs = broadcast(positionIDs[.newAxis, 0...], to: [batchSize, sequenceLength])
 
         let spatialMergeSize = modelConfig.visionConfig.spatialMergeSize
@@ -1000,7 +1009,7 @@ private final class GlmOcrLanguageModel: Module {
             var mropeDeltas: [Int32] = []
             mropeDeltas.reserveCapacity(batchSize)
 
-            for batchIndex in 0 ..< batchSize {
+            for batchIndex in 0..<batchSize {
                 var batchInput = inputIDs[batchIndex, 0...]
                 batchInput = `where`(mask[batchIndex, 0...] .== 1, batchInput, zeros(like: batchInput))
 
@@ -1020,7 +1029,7 @@ private final class GlmOcrLanguageModel: Module {
                 var llmPositionList: [MLXArray] = []
                 var start = 0
 
-                for _ in 0 ..< (imageCount + videoCount) {
+                for _ in 0..<(imageCount + videoCount) {
                     let endImage: Int
                     if imageCount > 0, let idx = inputTokens[start...].firstIndex(of: imageTokenID) {
                         endImage = idx
@@ -1065,17 +1074,17 @@ private final class GlmOcrLanguageModel: Module {
                     let textLength = max(end - start, 0)
                     let startIndex = llmPositionList.last.map { $0.max().item(Int.self) + 1 } ?? 0
 
-                    var index = MLXArray(0 ..< textLength).reshaped(1, textLength)
+                    var index = MLXArray(0..<textLength).reshaped(1, textLength)
                     index = broadcast(index, to: [3, textLength])
                     llmPositionList.append(index + MLXArray(startIndex))
 
-                    var tIndex = MLXArray(0 ..< gridT).reshaped(gridT, 1)
+                    var tIndex = MLXArray(0..<gridT).reshaped(gridT, 1)
                     tIndex = broadcast(tIndex, to: [gridT, gridH * gridW]).flattened()
 
-                    var hIndex = MLXArray(0 ..< gridH).reshaped(1, gridH, 1)
+                    var hIndex = MLXArray(0..<gridH).reshaped(1, gridH, 1)
                     hIndex = broadcast(hIndex, to: [gridT, gridH, gridW]).flattened()
 
-                    var wIndex = MLXArray(0 ..< gridW).reshaped(1, 1, gridW)
+                    var wIndex = MLXArray(0..<gridW).reshaped(1, 1, gridW)
                     wIndex = broadcast(wIndex, to: [gridT, gridH, gridW]).flattened()
 
                     let visualPositions = stacked([tIndex, hIndex, wIndex]) + MLXArray(textLength + startIndex)
@@ -1087,7 +1096,7 @@ private final class GlmOcrLanguageModel: Module {
                 if start < inputTokens.count {
                     let startIndex = llmPositionList.last.map { $0.max().item(Int.self) + 1 } ?? 0
                     let textLength = inputTokens.count - start
-                    var tail = MLXArray(0 ..< textLength).reshaped(1, textLength)
+                    var tail = MLXArray(0..<textLength).reshaped(1, textLength)
                     tail = broadcast(tail, to: [3, textLength])
                     llmPositionList.append(tail + MLXArray(startIndex))
                 }
@@ -1105,7 +1114,7 @@ private final class GlmOcrLanguageModel: Module {
                 let newPositions = `where`(
                     expandedMask,
                     expandedPositions,
-                    positionIDs[0..., batchIndex ..< (batchIndex + 1), 0...]
+                    positionIDs[0..., batchIndex..<(batchIndex + 1), 0...]
                 )
 
                 positionIDs = concatenated(
@@ -1132,11 +1141,13 @@ private final class GlmOcrLanguageModel: Module {
             positions = tiled(positions, repetitions: [3, 1, 1])
 
             let maxPosition = positions.max(axis: 0)[0].max(axis: -1)[0]
-            let deltas = maxPosition + MLXArray(1, dtype: maxPosition.dtype) - MLXArray(attentionMask.dim(-1), dtype: maxPosition.dtype)
+            let deltas =
+                maxPosition + MLXArray(1, dtype: maxPosition.dtype)
+                - MLXArray(attentionMask.dim(-1), dtype: maxPosition.dtype)
             return (positions, deltas)
         }
 
-        var positions = MLXArray(0 ..< inputIDs.dim(1)).reshaped(1, -1)
+        var positions = MLXArray(0..<inputIDs.dim(1)).reshaped(1, -1)
         positions = broadcast(positions, to: [3, inputIDs.dim(0), inputIDs.dim(1)])
         let deltas = MLXArray.zeros([inputIDs.dim(0), 1], dtype: inputIDs.dtype)
         return (positions, deltas)
@@ -1171,7 +1182,7 @@ private final class GlmOcrLanguageModel: Module {
             if (cacheOffset == 0) || ropeDeltas == nil {
                 if let cachedPositionIDs {
                     let sequenceLength = inputIDs.dim(1)
-                    positionIDs = cachedPositionIDs[0..., 0..., cacheOffset ..< (cacheOffset + sequenceLength)]
+                    positionIDs = cachedPositionIDs[0..., 0..., cacheOffset..<(cacheOffset + sequenceLength)]
                 } else {
                     let (computedPositionIDs, computedDeltas) = getRopeIndex(
                         inputIDs: inputIDs,
@@ -1192,7 +1203,7 @@ private final class GlmOcrLanguageModel: Module {
                     delta = delta + ropeDeltas.asType(.int32)
                 }
 
-                var positionBase = MLXArray(0 ..< sequenceLength).reshaped(1, -1)
+                var positionBase = MLXArray(0..<sequenceLength).reshaped(1, -1)
                 positionBase = broadcast(positionBase, to: [batchSize, sequenceLength])
 
                 if delta.ndim == 0 {
@@ -1241,8 +1252,8 @@ private final class GlmOcrLanguageModel: Module {
     }
 }
 
-private extension Array {
-    func chunked(into size: Int) -> [[Element]] {
+extension Array {
+    fileprivate func chunked(into size: Int) -> [[Element]] {
         guard size > 0 else { return [] }
         var result: [[Element]] = []
         result.reserveCapacity((count + size - 1) / size)
@@ -1250,7 +1261,7 @@ private extension Array {
         var index = 0
         while index < count {
             let end = Swift.min(index + size, count)
-            result.append(Array(self[index ..< end]))
+            result.append(Array(self[index..<end]))
             index += size
         }
 

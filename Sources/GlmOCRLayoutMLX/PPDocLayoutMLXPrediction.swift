@@ -13,7 +13,7 @@ internal struct PPDocLayoutMLXPrediction: @unchecked Sendable {
             PPDocLayoutMLXContract.logitsOutputName: logits.shape,
             PPDocLayoutMLXContract.predBoxesOutputName: predBoxes.shape,
             PPDocLayoutMLXContract.orderLogitsOutputName: orderLogits.shape,
-            PPDocLayoutMLXContract.outMasksOutputName: outMasks.shape
+            PPDocLayoutMLXContract.outMasksOutputName: outMasks.shape,
         ]
     }
 }

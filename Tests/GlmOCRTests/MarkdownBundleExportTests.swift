@@ -72,35 +72,37 @@ final class MarkdownBundleExportTests: XCTestCase {
         let page = Self.makeSolidTestImage(width: 640, height: 480)
         let pageLoader = StubPageLoader(pages: [page])
         let layoutDetector = StubLayoutDetector(
-            pageDetections: [[
-                PipelineLayoutRegion(
-                    index: 0,
-                    label: "text",
-                    task: .text,
-                    score: 0.9,
-                    bbox2D: [0, 0, 1000, 260],
-                    polygon2D: [],
-                    order: 0
-                ),
-                PipelineLayoutRegion(
-                    index: 1,
-                    label: "image",
-                    task: .skip,
-                    score: 0.9,
-                    bbox2D: [80, 300, 420, 900],
-                    polygon2D: [],
-                    order: 1
-                ),
-                PipelineLayoutRegion(
-                    index: 2,
-                    label: "chart",
-                    task: .skip,
-                    score: 0.9,
-                    bbox2D: [520, 280, 920, 940],
-                    polygon2D: [],
-                    order: 2
-                ),
-            ]]
+            pageDetections: [
+                [
+                    PipelineLayoutRegion(
+                        index: 0,
+                        label: "text",
+                        task: .text,
+                        score: 0.9,
+                        bbox2D: [0, 0, 1000, 260],
+                        polygon2D: [],
+                        order: 0
+                    ),
+                    PipelineLayoutRegion(
+                        index: 1,
+                        label: "image",
+                        task: .skip,
+                        score: 0.9,
+                        bbox2D: [80, 300, 420, 900],
+                        polygon2D: [],
+                        order: 1
+                    ),
+                    PipelineLayoutRegion(
+                        index: 2,
+                        label: "chart",
+                        task: .skip,
+                        score: 0.9,
+                        bbox2D: [520, 280, 920, 940],
+                        polygon2D: [],
+                        order: 2
+                    ),
+                ]
+            ]
         )
         let recognizer = StubRegionRecognizer()
 
@@ -118,8 +120,8 @@ final class MarkdownBundleExportTests: XCTestCase {
         let bytesPerRow = width * 4
         var pixels = [UInt8](repeating: 0, count: width * height * 4)
 
-        for y in 0 ..< height {
-            for x in 0 ..< width {
+        for y in 0..<height {
+            for x in 0..<width {
                 let offset = (y * bytesPerRow) + (x * 4)
                 pixels[offset] = UInt8((x * 255) / max(width - 1, 1))
                 pixels[offset + 1] = UInt8((y * 255) / max(height - 1, 1))
@@ -128,15 +130,17 @@ final class MarkdownBundleExportTests: XCTestCase {
             }
         }
 
-        guard let context = CGContext(
-            data: &pixels,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: bytesPerRow,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let context = CGContext(
+                data: &pixels,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: bytesPerRow,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             fatalError("Failed to build test CGContext")
         }
 

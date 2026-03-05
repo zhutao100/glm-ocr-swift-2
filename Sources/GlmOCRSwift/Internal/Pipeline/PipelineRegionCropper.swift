@@ -54,14 +54,16 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
             return PipelineRegionCropResult(image: cropped, warning: nil)
         }
 
-        guard let masked = mask(
-            cropped: cropped,
-            originalWidth: width,
-            originalHeight: height,
-            cropOriginX: coordinates.x1,
-            cropOriginY: coordinates.y1,
-            polygon2D: polygon2D
-        ) else {
+        guard
+            let masked = mask(
+                cropped: cropped,
+                originalWidth: width,
+                originalHeight: height,
+                cropOriginX: coordinates.x1,
+                cropOriginY: coordinates.y1,
+                polygon2D: polygon2D
+            )
+        else {
             dumpIfRequested(image: cropped, pageIndex: pageIndex, regionIndex: regionIndex)
             return PipelineRegionCropResult(image: cropped, warning: nil)
         }
@@ -149,7 +151,7 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         }
 
         var outputRGB = [UInt8](repeating: 255, count: cropWidth * cropHeight * 3)
-        for pixelIndex in 0 ..< (cropWidth * cropHeight) where maskBuffer[pixelIndex] != 0 {
+        for pixelIndex in 0..<(cropWidth * cropHeight) where maskBuffer[pixelIndex] != 0 {
             let base = pixelIndex * 3
             outputRGB[base] = croppedRGB[base]
             outputRGB[base + 1] = croppedRGB[base + 1]
@@ -171,15 +173,17 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         var mask = [UInt8](repeating: 0, count: width * height)
         let colorSpace = CGColorSpaceCreateDeviceGray()
         let bitmapInfo = CGImageAlphaInfo.none.rawValue
-        guard let context = CGContext(
-            data: &mask,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let context = CGContext(
+                data: &mask,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             return []
         }
 
@@ -213,15 +217,17 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
 
-        guard let context = CGContext(
-            data: &rgba,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let context = CGContext(
+                data: &rgba,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             return nil
         }
 
@@ -229,7 +235,7 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
 
         var rgb = [UInt8](repeating: 0, count: width * height * 3)
-        for idx in 0 ..< (width * height) {
+        for idx in 0..<(width * height) {
             let rgbaOffset = idx * 4
             let rgbOffset = idx * 3
             rgb[rgbOffset] = rgba[rgbaOffset]
@@ -246,7 +252,7 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         }
 
         var rgba = [UInt8](repeating: 255, count: width * height * 4)
-        for idx in 0 ..< (width * height) {
+        for idx in 0..<(width * height) {
             let rgbOffset = idx * 3
             let rgbaOffset = idx * 4
             rgba[rgbaOffset] = bytes[rgbOffset]
@@ -257,15 +263,17 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
 
-        guard let context = CGContext(
-            data: &rgba,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let context = CGContext(
+                data: &rgba,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             return nil
         }
 
@@ -286,7 +294,7 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         regionIndex: Int
     ) {
         guard let directory = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_DUMP_CROPS_DIR"],
-              !directory.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            !directory.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         else {
             return
         }
@@ -294,14 +302,17 @@ internal struct PipelineRegionCropper: PipelineRegionCropping {
         let dirURL = URL(fileURLWithPath: directory, isDirectory: true)
         try? FileManager.default.createDirectory(at: dirURL, withIntermediateDirectories: true)
         let millis = Int(Date().timeIntervalSince1970 * 1000)
-        let fileURL = dirURL.appending(path: String(format: "t_%013d_page_%03d_region_%03d.png", millis, pageIndex, regionIndex))
+        let fileURL = dirURL.appending(
+            path: String(format: "t_%013d_page_%03d_region_%03d.png", millis, pageIndex, regionIndex))
 
-        guard let destination = CGImageDestinationCreateWithURL(
-            fileURL as CFURL,
-            UTType.png.identifier as CFString,
-            1,
-            nil
-        ) else {
+        guard
+            let destination = CGImageDestinationCreateWithURL(
+                fileURL as CFURL,
+                UTType.png.identifier as CFString,
+                1,
+                nil
+            )
+        else {
             return
         }
 

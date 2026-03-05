@@ -60,10 +60,12 @@ public struct GlmOCRRecognitionOptions: Sendable, Codable, Equatable {
         let defaults = Self()
         self.maxTokens = try container.decodeIfPresent(Int.self, forKey: .maxTokens) ?? defaults.maxTokens
         self.temperature = try container.decodeIfPresent(Float.self, forKey: .temperature) ?? defaults.temperature
-        self.prefillStepSize = try container.decodeIfPresent(Int.self, forKey: .prefillStepSize) ?? defaults.prefillStepSize
+        self.prefillStepSize =
+            try container.decodeIfPresent(Int.self, forKey: .prefillStepSize) ?? defaults.prefillStepSize
         self.topP = try container.decodeIfPresent(Float.self, forKey: .topP) ?? defaults.topP
         self.topK = try container.decodeIfPresent(Int.self, forKey: .topK) ?? defaults.topK
-        self.repetitionPenalty = try container.decodeIfPresent(Float.self, forKey: .repetitionPenalty)
+        self.repetitionPenalty =
+            try container.decodeIfPresent(Float.self, forKey: .repetitionPenalty)
             ?? defaults.repetitionPenalty
     }
 }
@@ -112,10 +114,12 @@ public struct GlmOCRPromptConfig: Sendable, Codable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = Self()
-        self.noLayoutPrompt = try container.decodeIfPresent(String.self, forKey: .noLayoutPrompt) ?? defaults.noLayoutPrompt
+        self.noLayoutPrompt =
+            try container.decodeIfPresent(String.self, forKey: .noLayoutPrompt) ?? defaults.noLayoutPrompt
         self.textPrompt = try container.decodeIfPresent(String.self, forKey: .textPrompt) ?? defaults.textPrompt
         self.tablePrompt = try container.decodeIfPresent(String.self, forKey: .tablePrompt) ?? defaults.tablePrompt
-        self.formulaPrompt = try container.decodeIfPresent(String.self, forKey: .formulaPrompt) ?? defaults.formulaPrompt
+        self.formulaPrompt =
+            try container.decodeIfPresent(String.self, forKey: .formulaPrompt) ?? defaults.formulaPrompt
     }
 }
 
@@ -194,9 +198,11 @@ public struct GlmOCRLayoutConfig: Sendable, Codable, Equatable {
             key: .layoutUnclipRatio,
             fallback: defaults.layoutUnclipRatio
         )
-        self.layoutMergeBBoxesMode = try container.decodeIfPresent([Int: String].self, forKey: .layoutMergeBBoxesMode)
+        self.layoutMergeBBoxesMode =
+            try container.decodeIfPresent([Int: String].self, forKey: .layoutMergeBBoxesMode)
             ?? defaults.layoutMergeBBoxesMode
-        self.labelTaskMapping = try container.decodeIfPresent([String: [String]].self, forKey: .labelTaskMapping)
+        self.labelTaskMapping =
+            try container.decodeIfPresent([String: [String]].self, forKey: .labelTaskMapping)
             ?? defaults.labelTaskMapping
         self.id2label = try container.decodeIfPresent([Int: String].self, forKey: .id2label)
     }
@@ -249,10 +255,12 @@ public struct GlmOCRLayoutConfig: Sendable, Codable, Equatable {
 
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            self.x = try container.decodeIfPresent(Double.self, forKey: .x)
+            self.x =
+                try container.decodeIfPresent(Double.self, forKey: .x)
                 ?? container.decodeIfPresent(Double.self, forKey: .width)
                 ?? 1.0
-            self.y = try container.decodeIfPresent(Double.self, forKey: .y)
+            self.y =
+                try container.decodeIfPresent(Double.self, forKey: .y)
                 ?? container.decodeIfPresent(Double.self, forKey: .height)
                 ?? 1.0
         }
@@ -285,22 +293,22 @@ public struct GlmOCRLayoutConfig: Sendable, Codable, Equatable {
         21: "large",
         22: "large",
         23: "large",
-        24: "large"
+        24: "large",
     ]
 
     public static let defaultLabelTaskMapping: [String: [String]] = [
         "text": [
             "abstract", "algorithm", "content", "doc_title", "figure_title",
             "paragraph_title", "reference_content", "text", "vertical_text",
-            "vision_footnote", "seal", "formula_number"
+            "vision_footnote", "seal", "formula_number",
         ],
         "table": ["table"],
         "formula": ["display_formula", "inline_formula"],
         "skip": ["chart", "image"],
         "abandon": [
             "header", "footer", "number", "footnote", "aside_text", "reference",
-            "footer_image", "header_image"
-        ]
+            "footer_image", "header_image",
+        ],
     ]
 
     public static func == (lhs: GlmOCRLayoutConfig, rhs: GlmOCRLayoutConfig) -> Bool {
@@ -396,14 +404,18 @@ public struct GlmOCRMarkdownBundleConfig: Sendable, Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = Self()
         self.enabled = try container.decodeIfPresent(Bool.self, forKey: .enabled) ?? defaults.enabled
-        self.figureFormat = try container.decodeIfPresent(GlmOCRFigureFormat.self, forKey: .figureFormat)
+        self.figureFormat =
+            try container.decodeIfPresent(GlmOCRFigureFormat.self, forKey: .figureFormat)
             ?? defaults.figureFormat
-        self.markdownFileName = try container.decodeIfPresent(String.self, forKey: .markdownFileName)
+        self.markdownFileName =
+            try container.decodeIfPresent(String.self, forKey: .markdownFileName)
             ?? defaults.markdownFileName
         self.jsonFileName = try container.decodeIfPresent(String.self, forKey: .jsonFileName) ?? defaults.jsonFileName
-        self.figuresDirectoryName = try container.decodeIfPresent(String.self, forKey: .figuresDirectoryName)
+        self.figuresDirectoryName =
+            try container.decodeIfPresent(String.self, forKey: .figuresDirectoryName)
             ?? defaults.figuresDirectoryName
-        self.heicCompressionQuality = try container.decodeIfPresent(Double.self, forKey: .heicCompressionQuality)
+        self.heicCompressionQuality =
+            try container.decodeIfPresent(Double.self, forKey: .heicCompressionQuality)
             ?? defaults.heicCompressionQuality
     }
 }
@@ -469,19 +481,26 @@ public struct GlmOCRPerformanceConfig: Sendable, Codable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = Self()
-        self.inferenceBatchSize = try container.decodeIfPresent(Int.self, forKey: .inferenceBatchSize)
+        self.inferenceBatchSize =
+            try container.decodeIfPresent(Int.self, forKey: .inferenceBatchSize)
             ?? defaults.inferenceBatchSize
-        self.inferenceBatchMaxWaitMs = try container.decodeIfPresent(Int.self, forKey: .inferenceBatchMaxWaitMs)
+        self.inferenceBatchMaxWaitMs =
+            try container.decodeIfPresent(Int.self, forKey: .inferenceBatchMaxWaitMs)
             ?? defaults.inferenceBatchMaxWaitMs
-        self.inferenceMaxInflightJobs = try container.decodeIfPresent(Int.self, forKey: .inferenceMaxInflightJobs)
+        self.inferenceMaxInflightJobs =
+            try container.decodeIfPresent(Int.self, forKey: .inferenceMaxInflightJobs)
             ?? defaults.inferenceMaxInflightJobs
-        self.pdfRenderConcurrency = try container.decodeIfPresent(Int.self, forKey: .pdfRenderConcurrency)
+        self.pdfRenderConcurrency =
+            try container.decodeIfPresent(Int.self, forKey: .pdfRenderConcurrency)
             ?? defaults.pdfRenderConcurrency
-        self.ocrPreprocessConcurrency = try container.decodeIfPresent(Int.self, forKey: .ocrPreprocessConcurrency)
+        self.ocrPreprocessConcurrency =
+            try container.decodeIfPresent(Int.self, forKey: .ocrPreprocessConcurrency)
             ?? defaults.ocrPreprocessConcurrency
-        self.bundleEncodeConcurrency = try container.decodeIfPresent(Int.self, forKey: .bundleEncodeConcurrency)
+        self.bundleEncodeConcurrency =
+            try container.decodeIfPresent(Int.self, forKey: .bundleEncodeConcurrency)
             ?? defaults.bundleEncodeConcurrency
-        self.layoutPostprocessFastPath = try container.decodeIfPresent(Bool.self, forKey: .layoutPostprocessFastPath)
+        self.layoutPostprocessFastPath =
+            try container.decodeIfPresent(Bool.self, forKey: .layoutPostprocessFastPath)
             ?? defaults.layoutPostprocessFastPath
     }
 }
@@ -580,29 +599,36 @@ public struct GlmOCRConfig: Sendable, Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = Self()
 
-        self.recognizerModelID = try container.decodeIfPresent(String.self, forKey: .recognizerModelID)
+        self.recognizerModelID =
+            try container.decodeIfPresent(String.self, forKey: .recognizerModelID)
             ?? defaults.recognizerModelID
-        self.layoutModelID = try container.decodeIfPresent(String.self, forKey: .layoutModelID)
+        self.layoutModelID =
+            try container.decodeIfPresent(String.self, forKey: .layoutModelID)
             ?? defaults.layoutModelID
-        self.maxConcurrentRecognitions = try container.decodeIfPresent(Int.self, forKey: .maxConcurrentRecognitions)
+        self.maxConcurrentRecognitions =
+            try container.decodeIfPresent(Int.self, forKey: .maxConcurrentRecognitions)
             ?? defaults.maxConcurrentRecognitions
         self.enableLayout = try container.decodeIfPresent(Bool.self, forKey: .enableLayout) ?? defaults.enableLayout
-        self.performance = try container.decodeIfPresent(GlmOCRPerformanceConfig.self, forKey: .performance)
+        self.performance =
+            try container.decodeIfPresent(GlmOCRPerformanceConfig.self, forKey: .performance)
             ?? defaults.performance
-        self.markdownBundle = try container.decodeIfPresent(GlmOCRMarkdownBundleConfig.self, forKey: .markdownBundle)
+        self.markdownBundle =
+            try container.decodeIfPresent(GlmOCRMarkdownBundleConfig.self, forKey: .markdownBundle)
             ?? defaults.markdownBundle
-        self.recognitionOptions = try container.decodeIfPresent(GlmOCRRecognitionOptions.self, forKey: .recognitionOptions)
+        self.recognitionOptions =
+            try container.decodeIfPresent(GlmOCRRecognitionOptions.self, forKey: .recognitionOptions)
             ?? defaults.recognitionOptions
         self.prompts = try container.decodeIfPresent(GlmOCRPromptConfig.self, forKey: .prompts) ?? defaults.prompts
         self.layout = try container.decodeIfPresent(GlmOCRLayoutConfig.self, forKey: .layout) ?? defaults.layout
         self.pdfDPI = try container.decodeIfPresent(Double.self, forKey: .pdfDPI) ?? defaults.pdfDPI
-        self.pdfMaxRenderedLongSide = try container.decodeIfPresent(Double.self, forKey: .pdfMaxRenderedLongSide)
+        self.pdfMaxRenderedLongSide =
+            try container.decodeIfPresent(Double.self, forKey: .pdfMaxRenderedLongSide)
             ?? defaults.pdfMaxRenderedLongSide
         self.defaultMaxPages = try container.decodeIfPresent(Int.self, forKey: .defaultMaxPages)
     }
 }
 
-internal extension GlmOCRConfig {
+extension GlmOCRConfig {
     private static let legacyMaxConcurrentRecognitionsDefault = 1
 
     var effectivePerformanceConfig: GlmOCRPerformanceConfig {
@@ -648,8 +674,10 @@ public struct ParseOptions: Sendable, Codable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = Self()
-        self.includeMarkdown = try container.decodeIfPresent(Bool.self, forKey: .includeMarkdown) ?? defaults.includeMarkdown
-        self.includeDiagnostics = try container.decodeIfPresent(Bool.self, forKey: .includeDiagnostics)
+        self.includeMarkdown =
+            try container.decodeIfPresent(Bool.self, forKey: .includeMarkdown) ?? defaults.includeMarkdown
+        self.includeDiagnostics =
+            try container.decodeIfPresent(Bool.self, forKey: .includeDiagnostics)
             ?? defaults.includeDiagnostics
         self.maxPages = try container.decodeIfPresent(Int.self, forKey: .maxPages)
     }

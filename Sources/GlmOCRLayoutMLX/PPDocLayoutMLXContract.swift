@@ -24,7 +24,7 @@ internal enum PPDocLayoutMLXContract {
         (name: logitsOutputName, shape: logitsShape),
         (name: predBoxesOutputName, shape: predBoxesShape),
         (name: orderLogitsOutputName, shape: orderLogitsShape),
-        (name: outMasksOutputName, shape: outMasksShape)
+        (name: outMasksOutputName, shape: outMasksShape),
     ]
 
     internal static let defaultDetectionThreshold: Float = 0.3
@@ -58,22 +58,22 @@ internal enum PPDocLayoutMLXContract {
         21: "table",
         22: "text",
         23: "vertical_text",
-        24: "vision_footnote"
+        24: "vision_footnote",
     ]
 
     internal static let labelTaskMapping: [String: Set<String>] = [
         "text": [
             "abstract", "algorithm", "content", "doc_title", "figure_title",
             "paragraph_title", "reference_content", "text", "vertical_text",
-            "vision_footnote", "seal", "formula_number"
+            "vision_footnote", "seal", "formula_number",
         ],
         "table": ["table"],
         "formula": ["display_formula", "inline_formula"],
         "skip": ["chart", "image"],
         "abandon": [
             "header", "footer", "number", "footnote", "aside_text", "reference",
-            "footer_image", "header_image"
-        ]
+            "footer_image", "header_image",
+        ],
     ]
 
     internal static let layoutMergeBBoxesMode: [Int: LayoutMergeMode] = [
@@ -101,7 +101,7 @@ internal enum PPDocLayoutMLXContract {
         21: .large,
         22: .large,
         23: .large,
-        24: .large
+        24: .large,
     ]
 
     internal static let preservedContainmentLabels: Set<String> = ["image", "seal", "chart"]

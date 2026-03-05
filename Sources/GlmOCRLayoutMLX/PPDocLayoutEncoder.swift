@@ -28,7 +28,7 @@ internal struct PPDocLayoutEncoder: Sendable {
         var projected: [MLXArray] = []
         projected.reserveCapacity(3)
 
-        for index in 0 ..< 3 {
+        for index in 0..<3 {
             let source = stageFeatures[index + 1]
             let convWeight = try weights.tensor("model.encoder_input_proj.\(index).0.weight")
             var hidden = PPDocLayoutMLXTensorOps.conv2dNCHW(
@@ -83,7 +83,7 @@ internal struct PPDocLayoutEncoder: Sendable {
         let numFpnStages = featureMaps.count - 1
         var fpnFeatureMaps: [MLXArray] = [featureMaps[numFpnStages]]
 
-        for idx in 0 ..< numFpnStages {
+        for idx in 0..<numFpnStages {
             let backboneFeatureMap = featureMaps[numFpnStages - idx - 1]
             var topFeature = fpnFeatureMaps[fpnFeatureMaps.count - 1]
 
@@ -111,7 +111,7 @@ internal struct PPDocLayoutEncoder: Sendable {
         let numPanStages = fpnFeatureMaps.count - 1
         var panFeatureMaps: [MLXArray] = [fpnFeatureMaps[0]]
 
-        for idx in 0 ..< numPanStages {
+        for idx in 0..<numPanStages {
             let topPan = panFeatureMaps[panFeatureMaps.count - 1]
             let fpnFeature = fpnFeatureMaps[idx + 1]
 
@@ -182,7 +182,7 @@ internal struct PPDocLayoutEncoder: Sendable {
             embedDim: config.encoderHiddenDim
         )
 
-        for layerIndex in 0 ..< config.encoderLayers {
+        for layerIndex in 0..<config.encoderLayers {
             let prefix = "model.encoder.encoder.\(aifiIndex).layers.\(layerIndex)"
             hidden = try encoderLayer(
                 hidden,
@@ -305,7 +305,7 @@ internal struct PPDocLayoutEncoder: Sendable {
             eps: config.batchNormEps
         )
 
-        for bottleneckIndex in 0 ..< 3 {
+        for bottleneckIndex in 0..<3 {
             hidden1 = try repVggBlock(
                 hidden1,
                 prefix: "\(prefix).bottlenecks.\(bottleneckIndex)"
@@ -351,7 +351,7 @@ internal struct PPDocLayoutEncoder: Sendable {
             baseStride: strides[reorderIndex[0]]
         )
 
-        for i in 1 ..< reordered.count {
+        for i in 1..<reordered.count {
             let stride = strides[reorderIndex[i]]
             var scaled = try scaleHead(
                 reordered[i],
@@ -390,7 +390,7 @@ internal struct PPDocLayoutEncoder: Sendable {
         let headLength = max(1, Int(log2(Double(fpnStride)) - log2(Double(baseStride))))
         var hidden = x
 
-        for layerIndex in 0 ..< headLength {
+        for layerIndex in 0..<headLength {
             let convLayerIndex = layerIndex * 2
             hidden = try PPDocLayoutMLXTensorOps.convLayer(
                 hidden,
@@ -417,7 +417,7 @@ internal struct PPDocLayoutEncoder: Sendable {
 
         let posDim = embedDim / 4
         var omega = [Float](repeating: 0, count: posDim)
-        for i in 0 ..< posDim {
+        for i in 0..<posDim {
             let ratio = Float(i) / Float(posDim)
             omega[i] = 1.0 / pow(Float(config.positionalEncodingTemperature), ratio)
         }
@@ -425,12 +425,12 @@ internal struct PPDocLayoutEncoder: Sendable {
         let tokenCount = height * width
         var values = [Float](repeating: 0, count: tokenCount * embedDim)
 
-        for y in 0 ..< height {
-            for x in 0 ..< width {
+        for y in 0..<height {
+            for x in 0..<width {
                 let token = (y * width) + x
                 let base = token * embedDim
 
-                for i in 0 ..< posDim {
+                for i in 0..<posDim {
                     let hValue = Float(y) * omega[i]
                     let wValue = Float(x) * omega[i]
 

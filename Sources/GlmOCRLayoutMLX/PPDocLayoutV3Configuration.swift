@@ -119,7 +119,8 @@ internal struct PPDocLayoutV3Configuration: Sendable, Equatable {
                 numPrototypes: decoded.numPrototypes ?? fallback.numPrototypes,
                 maskEnhanced: decoded.maskEnhanced ?? fallback.maskEnhanced,
                 globalPointerHeadSize: decoded.globalPointerHeadSize ?? fallback.globalPointerHeadSize,
-                positionalEncodingTemperature: decoded.positionalEncodingTemperature ?? fallback.positionalEncodingTemperature
+                positionalEncodingTemperature: decoded.positionalEncodingTemperature
+                    ?? fallback.positionalEncodingTemperature
             )
         } catch {
             throw PPDocLayoutMLXError.modelConfigurationDecodeFailed(
@@ -207,8 +208,8 @@ private struct RawConfiguration: Decodable {
     }
 }
 
-private extension Int {
-    func nonZeroOr(_ fallback: Int) -> Int {
+extension Int {
+    fileprivate func nonZeroOr(_ fallback: Int) -> Int {
         self > 0 ? self : fallback
     }
 }

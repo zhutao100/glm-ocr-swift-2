@@ -32,7 +32,7 @@ internal struct PPDocLayoutBackbone: Sendable {
         var stageFeatures: [MLXArray] = []
         stageFeatures.reserveCapacity(4)
 
-        for stageIndex in 0 ..< 4 {
+        for stageIndex in 0..<4 {
             hidden = try stageForward(hidden, stageIndex: stageIndex)
             stageFeatures.append(hidden)
         }
@@ -132,7 +132,7 @@ internal struct PPDocLayoutBackbone: Sendable {
             )
         }
 
-        for blockIndex in 0 ..< Self.stageNumBlocks[stageIndex] {
+        for blockIndex in 0..<Self.stageNumBlocks[stageIndex] {
             hidden = try basicLayer(
                 hidden,
                 stageIndex: stageIndex,
@@ -162,7 +162,7 @@ internal struct PPDocLayoutBackbone: Sendable {
         var features: [MLXArray] = [x]
 
         var hidden = x
-        for layerIndex in 0 ..< numLayers {
+        for layerIndex in 0..<numLayers {
             if lightBlock {
                 hidden = try lightConvBlock(
                     hidden,
@@ -175,7 +175,8 @@ internal struct PPDocLayoutBackbone: Sendable {
                 hidden = try PPDocLayoutMLXTensorOps.convLayer(
                     hidden,
                     store: weights,
-                    prefix: "model.backbone.model.encoder.stages.\(stageIndex).blocks.\(blockIndex).layers.\(layerIndex)",
+                    prefix:
+                        "model.backbone.model.encoder.stages.\(stageIndex).blocks.\(blockIndex).layers.\(layerIndex)",
                     stride: 1,
                     activation: "relu",
                     eps: config.batchNormEps

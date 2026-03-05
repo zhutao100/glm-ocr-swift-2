@@ -18,18 +18,21 @@ public actor SandboxModelManager: ModelDeliveryManaging {
     public init() throws {
         let fileManager = FileManager.default
 
-        guard let appSupportDirectory = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+        guard let appSupportDirectory = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        else {
             throw ModelDeliveryError.invalidConfiguration("Unable to resolve Application Support directory")
         }
 
-        let cacheDirectory = appSupportDirectory
+        let cacheDirectory =
+            appSupportDirectory
             .appending(path: "GlmOCRSwift")
             .appending(path: "huggingface")
             .appending(path: "hub")
 
         let hubCache = HubCache(cacheDirectory: cacheDirectory)
 
-        let endpoint = ProcessInfo.processInfo.environment["HF_ENDPOINT"]
+        let endpoint =
+            ProcessInfo.processInfo.environment["HF_ENDPOINT"]
             .flatMap(URL.init(string:)) ?? HubClient.defaultHost
 
         let client = HubClient(
@@ -64,7 +67,8 @@ public actor SandboxModelManager: ModelDeliveryManaging {
         self.fileManager = fileManager
         self.maxConcurrentDownloads = maxConcurrentDownloads
 
-        let defaultStateFileURL = appSupportDirectory
+        let defaultStateFileURL =
+            appSupportDirectory
             .appending(path: "GlmOCRSwift")
             .appending(path: "ModelDelivery")
             .appending(path: "model-delivery-state.json")
@@ -275,11 +279,13 @@ public actor SandboxModelManager: ModelDeliveryManaging {
     ) throws -> SnapshotValidation {
         var allPaths: Set<String> = []
 
-        guard let enumerator = fileManager.enumerator(
-            at: directory,
-            includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey],
-            options: [.skipsHiddenFiles]
-        ) else {
+        guard
+            let enumerator = fileManager.enumerator(
+                at: directory,
+                includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey],
+                options: [.skipsHiddenFiles]
+            )
+        else {
             throw ModelDeliveryError.cacheUnavailable("Unable to enumerate snapshot at \(directory.path)")
         }
 
@@ -303,7 +309,8 @@ public actor SandboxModelManager: ModelDeliveryManaging {
             throw ModelDeliveryError.missingRequiredFile(modelID: modelID, path: firstMissing)
         }
 
-        let safetensors = allPaths
+        let safetensors =
+            allPaths
             .filter { $0.lowercased().hasSuffix(".safetensors") }
             .sorted()
 
@@ -420,19 +427,21 @@ public actor SandboxModelManager: ModelDeliveryManaging {
         snapshotDirectory: URL,
         relativePath: String
     ) -> String? {
-        let metadataURL = snapshotDirectory
+        let metadataURL =
+            snapshotDirectory
             .appending(path: ".cache")
             .appending(path: "huggingface")
             .appending(path: "download")
             .appending(path: "\(relativePath).metadata")
 
         guard fileManager.fileExists(atPath: metadataURL.path),
-              let content = try? String(contentsOf: metadataURL, encoding: .utf8)
+            let content = try? String(contentsOf: metadataURL, encoding: .utf8)
         else {
             return nil
         }
 
-        let lines = content
+        let lines =
+            content
             .split(whereSeparator: \.isNewline)
             .map(String.init)
         guard lines.count >= 2 else {
@@ -475,7 +484,7 @@ public actor SandboxModelManager: ModelDeliveryManaging {
 
         return lower.unicodeScalars.allSatisfy { scalar in
             switch scalar.value {
-            case 48 ... 57, 97 ... 102:
+            case 48...57, 97...102:
                 return true
             default:
                 return false
@@ -527,8 +536,8 @@ public actor SandboxModelManager: ModelDeliveryManaging {
         fileManager: FileManager
     ) -> ModelDeliveryState {
         guard fileManager.fileExists(atPath: stateFileURL.path),
-              let data = try? Data(contentsOf: stateFileURL),
-              let decoded = try? JSONDecoder().decode(ModelDeliveryState.self, from: data)
+            let data = try? Data(contentsOf: stateFileURL),
+            let decoded = try? JSONDecoder().decode(ModelDeliveryState.self, from: data)
         else {
             return ModelDeliveryState()
         }

@@ -6,9 +6,9 @@ internal struct PPDocLayoutRawDetection: Sendable, Equatable {
     internal let clsID: Int
     internal let label: String
     internal let score: Float
-    internal let bbox: [Double]      // absolute [x1, y1, x2, y2]
+    internal let bbox: [Double]  // absolute [x1, y1, x2, y2]
     internal let order: Int
-    internal let polygon: [[Double]] // absolute polygon points
+    internal let polygon: [[Double]]  // absolute polygon points
 }
 
 internal enum PPDocLayoutHFPostprocess {
@@ -23,7 +23,7 @@ internal enum PPDocLayoutHFPostprocess {
         let score: Float
         let order: Int
         let bbox: [Double]
-        let mask: [UInt8] // flattened [maskHeight * maskWidth]
+        let mask: [UInt8]  // flattened [maskHeight * maskWidth]
     }
 
     private struct IntPoint: Hashable {
@@ -66,13 +66,13 @@ internal enum PPDocLayoutHFPostprocess {
         var flattenedScores: [CandidateScore] = []
         flattenedScores.reserveCapacity(queryCount * classCount)
 
-        for query in 0 ..< queryCount {
+        for query in 0..<queryCount {
             let boxStart = query * 4
             let boxWidth = predBoxes[boxStart + 2]
             let boxHeight = predBoxes[boxStart + 3]
             let validQuery = boxWidth > minNormWidth && boxHeight > minNormHeight
 
-            for classIndex in 0 ..< classCount {
+            for classIndex in 0..<classCount {
                 let flatIndex = (query * classCount) + classIndex
                 let score = sigmoid(validQuery ? logits[flatIndex] : -100.0)
                 flattenedScores.append(CandidateScore(score: score, flatIndex: flatIndex))
@@ -114,7 +114,7 @@ internal enum PPDocLayoutHFPostprocess {
             }
 
             var binarizedMask = [UInt8](repeating: 0, count: maskElementCount)
-            for idx in 0 ..< maskElementCount {
+            for idx in 0..<maskElementCount {
                 binarizedMask[idx] = sigmoid(outMasks[maskStart + idx]) > threshold ? 1 : 0
             }
 
@@ -131,7 +131,8 @@ internal enum PPDocLayoutHFPostprocess {
         }
 
         let scoreFiltered = gathered.filter { $0.score >= threshold }
-        let ordered = scoreFiltered
+        let ordered =
+            scoreFiltered
             .enumerated()
             .sorted { lhs, rhs in
                 if lhs.element.order != rhs.element.order {
@@ -146,14 +147,15 @@ internal enum PPDocLayoutHFPostprocess {
 
         for candidate in ordered {
             let label = id2label[candidate.classIndex] ?? "class_\(candidate.classIndex)"
-            let polygon = extractPolygonPointsByMask(
-                box: candidate.bbox,
-                mask: candidate.mask,
-                maskWidth: maskWidth,
-                maskHeight: maskHeight,
-                targetSize: targetSize,
-                useFastBoundaryPath: useFastBoundaryPath
-            ) ?? fallbackRectangle(for: candidate.bbox)
+            let polygon =
+                extractPolygonPointsByMask(
+                    box: candidate.bbox,
+                    mask: candidate.mask,
+                    maskWidth: maskWidth,
+                    maskHeight: maskHeight,
+                    targetSize: targetSize,
+                    useFastBoundaryPath: useFastBoundaryPath
+                ) ?? fallbackRectangle(for: candidate.bbox)
 
             detections.append(
                 PPDocLayoutRawDetection(
@@ -179,9 +181,9 @@ internal enum PPDocLayoutHFPostprocess {
         }
 
         var votes = [Float](repeating: 0, count: queryCount)
-        for pointer in 0 ..< queryCount {
+        for pointer in 0..<queryCount {
             var vote: Float = 0
-            for idx in 0 ..< queryCount {
+            for idx in 0..<queryCount {
                 let upperIndex = (idx * queryCount) + pointer
                 let lowerIndex = (pointer * queryCount) + idx
 
@@ -241,11 +243,11 @@ internal enum PPDocLayoutHFPostprocess {
 
         let xCoordinates = [
             Int((Double(xMin) * scaleWidth).rounded()),
-            Int((Double(xMax) * scaleWidth).rounded())
+            Int((Double(xMax) * scaleWidth).rounded()),
         ]
         let yCoordinates = [
             Int((Double(yMin) * scaleHeight).rounded()),
-            Int((Double(yMax) * scaleHeight).rounded())
+            Int((Double(yMax) * scaleHeight).rounded()),
         ]
 
         let xStart = clip(xCoordinates[0], minValue: 0, maxValue: maskWidth)
@@ -282,12 +284,14 @@ internal enum PPDocLayoutHFPostprocess {
             return rect
         }
 
-        guard var polygon = maskToPolygon(
-            mask: resizedMask,
-            width: boxW,
-            height: boxH,
-            useFastBoundaryPath: useFastBoundaryPath
-        ) else {
+        guard
+            var polygon = maskToPolygon(
+                mask: resizedMask,
+                width: boxW,
+                height: boxH,
+                useFastBoundaryPath: useFastBoundaryPath
+            )
+        else {
             return rect
         }
 
@@ -309,12 +313,14 @@ internal enum PPDocLayoutHFPostprocess {
         height: Int,
         useFastBoundaryPath: Bool
     ) -> [[Double]]? {
-        guard let contour = largestExternalContour(
-            mask: mask,
-            width: width,
-            height: height,
-            useFastBoundaryPath: useFastBoundaryPath
-        ), contour.count >= 3 else {
+        guard
+            let contour = largestExternalContour(
+                mask: mask,
+                width: width,
+                height: height,
+                useFastBoundaryPath: useFastBoundaryPath
+            ), contour.count >= 3
+        else {
             return nil
         }
 
@@ -342,13 +348,13 @@ internal enum PPDocLayoutHFPostprocess {
         let neighbors = [
             (-1, -1), (0, -1), (1, -1),
             (-1, 0), (1, 0),
-            (-1, 1), (0, 1), (1, 1)
+            (-1, 1), (0, 1), (1, 1),
         ]
 
         var bestComponentIndices: [Int] = []
         var bestComponentMembership = [Bool](repeating: false, count: width * height)
-        for y in 0 ..< height {
-            for x in 0 ..< width {
+        for y in 0..<height {
+            for x in 0..<width {
                 let index = y * width + x
                 guard !visited[index], mask[index] != 0 else {
                     continue
@@ -440,10 +446,10 @@ internal enum PPDocLayoutHFPostprocess {
             }
 
             let neighbors = [
-                index - width, // up
-                index - 1, // left
-                index + 1, // right
-                index + width, // down
+                index - width,  // up
+                index - 1,  // left
+                index + 1,  // right
+                index + width,  // down
             ]
             if neighbors.contains(where: { !membership[$0] }) {
                 boundary.append(IntPoint(x: x, y: y))
@@ -461,7 +467,7 @@ internal enum PPDocLayoutHFPostprocess {
         let neighbors = [
             (0, -1),
             (-1, 0), (1, 0),
-            (0, 1)
+            (0, 1),
         ]
 
         return component.filter { point in
@@ -509,7 +515,7 @@ internal enum PPDocLayoutHFPostprocess {
         lower.reserveCapacity(uniqueSorted.count)
         for point in uniqueSorted {
             while lower.count >= 2,
-                  cross(lower[lower.count - 2], lower[lower.count - 1], point) <= 0
+                cross(lower[lower.count - 2], lower[lower.count - 1], point) <= 0
             {
                 lower.removeLast()
             }
@@ -520,7 +526,7 @@ internal enum PPDocLayoutHFPostprocess {
         upper.reserveCapacity(uniqueSorted.count)
         for point in uniqueSorted.reversed() {
             while upper.count >= 2,
-                  cross(upper[upper.count - 2], upper[upper.count - 1], point) <= 0
+                cross(upper[upper.count - 2], upper[upper.count - 1], point) <= 0
             {
                 upper.removeLast()
             }
@@ -606,7 +612,7 @@ internal enum PPDocLayoutHFPostprocess {
         let first = points[0]
         let last = points[points.count - 1]
 
-        for idx in 1 ..< (points.count - 1) {
+        for idx in 1..<(points.count - 1) {
             let distance = perpendicularDistance(point: points[idx], lineStart: first, lineEnd: last)
             if distance > maxDistance {
                 maxDistance = distance
@@ -615,8 +621,8 @@ internal enum PPDocLayoutHFPostprocess {
         }
 
         if maxDistance > epsilon {
-            let left = ramerDouglasPeucker(points: Array(points[0 ... index]), epsilon: epsilon)
-            let right = ramerDouglasPeucker(points: Array(points[index ... (points.count - 1)]), epsilon: epsilon)
+            let left = ramerDouglasPeucker(points: Array(points[0...index]), epsilon: epsilon)
+            let right = ramerDouglasPeucker(points: Array(points[index...(points.count - 1)]), epsilon: epsilon)
             return Array(left.dropLast()) + right
         }
 
@@ -657,7 +663,7 @@ internal enum PPDocLayoutHFPostprocess {
         var result: [[Double]] = []
         result.reserveCapacity(n)
 
-        for i in 0 ..< n {
+        for i in 0..<n {
             let previous = polygon[(i - 1 + n) % n]
             let current = polygon[i]
             let next = polygon[(i + 1) % n]
@@ -683,7 +689,7 @@ internal enum PPDocLayoutHFPostprocess {
                 if abs(angle - sharpAngleThreshold) < 1.0 {
                     var direction = [
                         (vector1[0] / norm1) + (vector2[0] / norm2),
-                        (vector1[1] / norm1) + (vector2[1] / norm2)
+                        (vector1[1] / norm1) + (vector2[1] / norm2),
                     ]
                     let directionNorm = hypot(direction[0], direction[1])
                     guard directionNorm > 0 else {
@@ -696,7 +702,7 @@ internal enum PPDocLayoutHFPostprocess {
                     let step = (norm1 + norm2) * 0.5
                     result.append([
                         current[0] + (direction[0] * step),
-                        current[1] + (direction[1] * step)
+                        current[1] + (direction[1] * step),
                     ])
                 } else {
                     result.append(current)
@@ -722,10 +728,10 @@ internal enum PPDocLayoutHFPostprocess {
         }
 
         var cropped = [UInt8](repeating: 0, count: croppedWidth * croppedHeight)
-        for y in 0 ..< croppedHeight {
+        for y in 0..<croppedHeight {
             let sourceOffset = (yStart + y) * maskWidth + xStart
             let targetOffset = y * croppedWidth
-            cropped[targetOffset ..< (targetOffset + croppedWidth)] = mask[sourceOffset ..< (sourceOffset + croppedWidth)]
+            cropped[targetOffset..<(targetOffset + croppedWidth)] = mask[sourceOffset..<(sourceOffset + croppedWidth)]
         }
         return cropped
     }
@@ -742,9 +748,9 @@ internal enum PPDocLayoutHFPostprocess {
         }
 
         var resized = [UInt8](repeating: 0, count: targetWidth * targetHeight)
-        for y in 0 ..< targetHeight {
+        for y in 0..<targetHeight {
             let mappedY = min(sourceHeight - 1, Int((Double(y) * Double(sourceHeight)) / Double(targetHeight)))
-            for x in 0 ..< targetWidth {
+            for x in 0..<targetWidth {
                 let mappedX = min(sourceWidth - 1, Int((Double(x) * Double(sourceWidth)) / Double(targetWidth)))
                 resized[y * targetWidth + x] = source[mappedY * sourceWidth + mappedX]
             }
@@ -765,7 +771,7 @@ internal enum PPDocLayoutHFPostprocess {
             [x1, y1],
             [x2, y1],
             [x2, y2],
-            [x1, y2]
+            [x1, y2],
         ]
     }
 

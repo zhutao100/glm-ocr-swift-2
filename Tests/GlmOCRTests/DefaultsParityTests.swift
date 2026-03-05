@@ -1,6 +1,6 @@
+import GlmOCRRecognizerMLX
 import XCTest
 
-import GlmOCRRecognizerMLX
 @testable import GlmOCRSwift
 
 final class DefaultsParityTests: XCTestCase {

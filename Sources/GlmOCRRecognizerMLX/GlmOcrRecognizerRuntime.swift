@@ -34,15 +34,17 @@ public actor GlmOcrRecognizerRuntime {
         let pixelCount = width * height
         var raw = [UInt8](repeating: 0, count: pixelCount * 4)
         let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
-        guard let context = CGContext(
-            data: &raw,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width * 4,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-        ) else {
+        guard
+            let context = CGContext(
+                data: &raw,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+            )
+        else {
             return nil
         }
 
@@ -51,7 +53,7 @@ public actor GlmOcrRecognizerRuntime {
 
         var values = [Float]()
         values.reserveCapacity(pixelCount * 3)
-        for index in 0 ..< pixelCount {
+        for index in 0..<pixelCount {
             let base = index * 4
             values.append(Float(raw[base]))
             values.append(Float(raw[base + 1]))
@@ -99,7 +101,8 @@ public actor GlmOcrRecognizerRuntime {
         )
         self.model = model
 
-        let configuredEOS = bundle.generationConfig.eosTokenIDs.isEmpty
+        let configuredEOS =
+            bundle.generationConfig.eosTokenIDs.isEmpty
             ? bundle.modelConfig.eosTokenIDs
             : bundle.generationConfig.eosTokenIDs
         self.eosTokenIDs = Set(configuredEOS)
@@ -145,7 +148,9 @@ public actor GlmOcrRecognizerRuntime {
 
         for (index, request) in requests.enumerated() {
             if tracePixels, let source = Self.imageRGBSummary(request.image) {
-                trace("recognize.batch[\(index)].sourceRGB count=\(source.count) sum=\(source.sum) prefix=\(source.prefix)")
+                trace(
+                    "recognize.batch[\(index)].sourceRGB count=\(source.count) sum=\(source.sum) prefix=\(source.prefix)"
+                )
             }
             let prepared = try processor.prepare(prompt: request.prompt, image: request.image)
             trace(
@@ -305,7 +310,7 @@ public actor GlmOcrRecognizerRuntime {
             imageGridTHW = MLXArray.zeros([0, 3], dtype: .int32)
         }
 
-        let cache: [GlmOcrKVCache?] = (0 ..< modelBundle.modelConfig.textConfig.numHiddenLayers).map { _ in
+        let cache: [GlmOcrKVCache?] = (0..<modelBundle.modelConfig.textConfig.numHiddenLayers).map { _ in
             GlmOcrSimpleKVCache()
         }
 
@@ -370,9 +375,9 @@ public actor GlmOcrRecognizerRuntime {
 
         var finished = currentTokens.map { eosTokenIDs.contains($0) }
 
-        for index in 0 ..< options.maxTokens {
+        for index in 0..<options.maxTokens {
             var activeCount = 0
-            for sampleIndex in 0 ..< batchSize {
+            for sampleIndex in 0..<batchSize {
                 if finished[sampleIndex] {
                     continue
                 }
@@ -399,7 +404,7 @@ public actor GlmOcrRecognizerRuntime {
                 break
             }
 
-            let nextInputValues: [Int32] = (0 ..< batchSize).map { sampleIndex in
+            let nextInputValues: [Int32] = (0..<batchSize).map { sampleIndex in
                 if finished[sampleIndex] {
                     return padTokenID
                 }
@@ -495,9 +500,9 @@ public actor GlmOcrRecognizerRuntime {
         let tokenValues = inputIDs.asArray(Int32.self).map(Int.init)
         let maskValues = attentionMask?.asArray(Int32.self)
 
-        for batchIndex in 0 ..< batchSize {
+        for batchIndex in 0..<batchSize {
             let rowStart = batchIndex * sequenceLength
-            for column in 0 ..< sequenceLength {
+            for column in 0..<sequenceLength {
                 let offset = rowStart + column
                 if let maskValues, maskValues[offset] == 0 {
                     continue
@@ -519,7 +524,7 @@ public actor GlmOcrRecognizerRuntime {
         let adjusted = logits
         let batchSize = adjusted.dim(0)
 
-        for batchIndex in 0 ..< batchSize {
+        for batchIndex in 0..<batchSize {
             guard batchIndex < historyTokensBySample.count else {
                 continue
             }
@@ -569,7 +574,7 @@ public actor GlmOcrRecognizerRuntime {
         let inverseIndices = putAlong(
             zeros(like: sortedIndices),
             sortedIndices,
-            values: MLXArray(0 ..< sortedIndices.dim(-1)).asType(sortedIndices.dtype),
+            values: MLXArray(0..<sortedIndices.dim(-1)).asType(sortedIndices.dtype),
             axis: -1
         )
         cumulative = takeAlong(cumulative, inverseIndices, axis: -1)

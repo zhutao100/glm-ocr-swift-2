@@ -3,7 +3,8 @@ import Foundation
 
 internal actor PPDocLayoutMLXDetector: LayoutDetector, PipelineLayoutDetecting, PipelineLayoutDetectingWithMetrics {
     private let inferenceClient: any LayoutInferenceClient
-    private nonisolated static let traceEnabled = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
+    private nonisolated static let traceEnabled =
+        ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
 
     internal init(
         config: GlmOCRConfig,

@@ -2,7 +2,7 @@ import Foundation
 
 internal struct PipelineFormatter: Sendable {
     private static let imageLabels: Set<String> = [
-        "chart", "image"
+        "chart", "image",
     ]
 
     private static let tableLabels: Set<String> = [
@@ -10,13 +10,13 @@ internal struct PipelineFormatter: Sendable {
     ]
 
     private static let formulaLabels: Set<String> = [
-        "display_formula", "inline_formula", "formula"
+        "display_formula", "inline_formula", "formula",
     ]
 
     private static let textLabels: Set<String> = [
         "abstract", "algorithm", "content", "doc_title", "figure_title",
         "paragraph_title", "reference_content", "text", "vertical_text",
-        "vision_footnote", "seal", "formula_number"
+        "vision_footnote", "seal", "formula_number",
     ]
 
     internal init() {}
@@ -36,7 +36,8 @@ internal struct PipelineFormatter: Sendable {
             ])
         }
 
-        let markdown = contents
+        let markdown =
+            contents
             .map(cleanContent)
             .joined(separator: "\n\n---\n\n")
 
@@ -250,7 +251,7 @@ internal struct PipelineFormatter: Sendable {
     }
 
     private func normalizeBulletNumbering(_ value: String) -> String {
-        let fullRange = NSRange(value.startIndex ..< value.endIndex, in: value)
+        let fullRange = NSRange(value.startIndex..<value.endIndex, in: value)
 
         if let enclosed = firstMatch(
             pattern: #"^(\(|（)(\d+|[A-Za-z])(\)|）)(.*)$"#,
@@ -282,7 +283,7 @@ internal struct PipelineFormatter: Sendable {
         range: NSRange
     ) -> [String]? {
         guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: text, range: range)
+            let match = regex.firstMatch(in: text, range: range)
         else {
             return nil
         }
@@ -290,7 +291,7 @@ internal struct PipelineFormatter: Sendable {
         var groups: [String] = []
         groups.reserveCapacity(match.numberOfRanges)
 
-        for index in 0 ..< match.numberOfRanges {
+        for index in 0..<match.numberOfRanges {
             let matchRange = match.range(at: index)
             if matchRange.location == NSNotFound {
                 groups.append("")
@@ -367,8 +368,8 @@ internal struct PipelineFormatter: Sendable {
             }
 
             if region.label == "formula",
-               index + 1 < regions.count,
-               regions[index + 1].nativeLabel == "formula_number"
+                index + 1 < regions.count,
+                regions[index + 1].nativeLabel == "formula_number"
             {
                 var updatedFormula = region
                 if let formula = region.content, let number = regions[index + 1].content {
@@ -427,13 +428,13 @@ internal struct PipelineFormatter: Sendable {
             let region = regions[index]
 
             guard region.label == "text",
-                  let content = region.content,
-                  content.trimmingCharacters(in: .whitespacesAndNewlines).hasSuffix("-"),
-                  index + 1 < regions.count,
-                  regions[index + 1].label == "text",
-                  let nextContent = regions[index + 1].content,
-                  let first = nextContent.trimmingCharacters(in: .whitespacesAndNewlines).first,
-                  first.isLowercase
+                let content = region.content,
+                content.trimmingCharacters(in: .whitespacesAndNewlines).hasSuffix("-"),
+                index + 1 < regions.count,
+                regions[index + 1].label == "text",
+                let nextContent = regions[index + 1].content,
+                let first = nextContent.trimmingCharacters(in: .whitespacesAndNewlines).first,
+                first.isLowercase
             else {
                 output.append(region)
                 index += 1
@@ -461,19 +462,19 @@ internal struct PipelineFormatter: Sendable {
 
         var output = regions
 
-        for index in 1 ..< (output.count - 1) {
+        for index in 1..<(output.count - 1) {
             guard output[index].nativeLabel == "text",
-                  output[index - 1].nativeLabel == "text",
-                  output[index + 1].nativeLabel == "text",
-                  let current = output[index].content,
-                  let previous = output[index - 1].content,
-                  let next = output[index + 1].content,
-                  !current.hasPrefix("- "),
-                  previous.hasPrefix("- "),
-                  next.hasPrefix("- "),
-                  let currentLeft = output[index].bbox2D?.first,
-                  let previousLeft = output[index - 1].bbox2D?.first,
-                  let nextLeft = output[index + 1].bbox2D?.first
+                output[index - 1].nativeLabel == "text",
+                output[index + 1].nativeLabel == "text",
+                let current = output[index].content,
+                let previous = output[index - 1].content,
+                let next = output[index + 1].content,
+                !current.hasPrefix("- "),
+                previous.hasPrefix("- "),
+                next.hasPrefix("- "),
+                let currentLeft = output[index].bbox2D?.first,
+                let previousLeft = output[index - 1].bbox2D?.first,
+                let nextLeft = output[index + 1].bbox2D?.first
             else {
                 continue
             }

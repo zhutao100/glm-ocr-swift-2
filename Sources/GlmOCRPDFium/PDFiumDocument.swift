@@ -1,5 +1,5 @@
-import Foundation
 import CPDFium
+import Foundation
 
 public enum PDFiumError: Error, Sendable, Equatable {
     case libraryLoadFailed(String)
@@ -20,7 +20,8 @@ public final class PDFiumDocument: @unchecked Sendable {
         PDFiumRuntime.ensureInitialized()
 
         self.memoryCount = max(1, data.count)
-        self.memory = UnsafeMutableRawPointer.allocate(byteCount: self.memoryCount, alignment: MemoryLayout<UInt8>.alignment)
+        self.memory = UnsafeMutableRawPointer.allocate(
+            byteCount: self.memoryCount, alignment: MemoryLayout<UInt8>.alignment)
 
         if data.isEmpty {
             self.memory.storeBytes(of: 0 as UInt8, as: UInt8.self)

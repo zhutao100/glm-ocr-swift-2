@@ -52,8 +52,8 @@ internal final class GlmOcrSimpleKVCache: GlmOcrKVCache {
         }
 
         offset += newLength
-        self.keys?[.ellipsis, previous ..< offset, 0...] = keys
-        self.values?[.ellipsis, previous ..< offset, 0...] = values
+        self.keys?[.ellipsis, previous..<offset, 0...] = keys
+        self.values?[.ellipsis, previous..<offset, 0...] = values
 
         let cachedKeys = self.keys![.ellipsis, ..<offset, 0...]
         let cachedValues = self.values![.ellipsis, ..<offset, 0...]
@@ -62,8 +62,8 @@ internal final class GlmOcrSimpleKVCache: GlmOcrKVCache {
 }
 
 internal func glmOcrCreateCausalMask(n: Int, offset: Int) -> MLXArray {
-    var right = MLXArray(Int32(0) ..< Int32(offset + n))
-    var left = offset == 0 ? right : MLXArray(Int32(offset) ..< Int32(offset + n))
+    var right = MLXArray(Int32(0)..<Int32(offset + n))
+    var left = offset == 0 ? right : MLXArray(Int32(offset)..<Int32(offset + n))
     left = left[0..., .newAxis]
     right = right[.newAxis]
     return left .>= right

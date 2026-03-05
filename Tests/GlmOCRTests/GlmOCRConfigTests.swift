@@ -38,10 +38,11 @@ final class GlmOCRConfigTests: XCTestCase {
     }
 
     func testInvalidConfigurationRejectsEmptyModelIDs() {
-        XCTAssertThrowsError(try GlmOCRConfig(
-            recognizerModelID: "   ",
-            layoutModelID: "    "
-        ).validate())
+        XCTAssertThrowsError(
+            try GlmOCRConfig(
+                recognizerModelID: "   ",
+                layoutModelID: "    "
+            ).validate())
     }
 
     func testRecognitionOptionsRoundTrip() throws {

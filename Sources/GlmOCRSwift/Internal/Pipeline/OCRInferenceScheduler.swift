@@ -138,7 +138,7 @@ internal struct OCRInferenceScheduler {
             var start = 0
             while start < bucketJobs.count {
                 let end = min(start + requestedBatchSize, bucketJobs.count)
-                queuedBatches.append(Array(bucketJobs[start ..< end]))
+                queuedBatches.append(Array(bucketJobs[start..<end]))
                 start = end
             }
         }

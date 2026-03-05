@@ -49,7 +49,9 @@ internal struct GlmOcrRecognizerProcessor: Sendable {
             patchSize: processorConfig.patchSize,
             temporalPatchSize: processorConfig.temporalPatchSize
         )
-        trace("prepare.patchify grid=[\(patchified.gridTHW.t),\(patchified.gridTHW.h),\(patchified.gridTHW.w)] pixelValuesShape=\(pixels.shape)")
+        trace(
+            "prepare.patchify grid=[\(patchified.gridTHW.t),\(patchified.gridTHW.h),\(patchified.gridTHW.w)] pixelValuesShape=\(pixels.shape)"
+        )
 
         let mergeArea = processorConfig.mergeSize * processorConfig.mergeSize
         let imageTokenCount = max(1, patchified.gridTHW.product / mergeArea)

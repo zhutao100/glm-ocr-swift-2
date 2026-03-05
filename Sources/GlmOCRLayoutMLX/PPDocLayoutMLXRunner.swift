@@ -27,7 +27,8 @@ package actor PPDocLayoutMLXRunner {
     private let weightsLoader: PPDocLayoutMLXWeightsLoader
 
     private var modelTask: Task<PPDocLayoutModel, Error>?
-    private nonisolated static let traceEnabled = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
+    private nonisolated static let traceEnabled =
+        ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
 
     package init(
         modelID: String,

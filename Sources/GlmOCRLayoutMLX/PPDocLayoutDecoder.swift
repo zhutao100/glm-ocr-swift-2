@@ -38,7 +38,7 @@ internal struct PPDocLayoutDecoder: Sendable {
         var finalOrderLogits: MLXArray?
         var finalMasks: MLXArray?
 
-        for layerIndex in 0 ..< config.decoderLayers {
+        for layerIndex in 0..<config.decoderLayers {
             let layerPrefix = "model.decoder.layers.\(layerIndex)"
             let referencePointsInput = referencePoints.expandedDimensions(axis: 2)
             let queryPositionEmbeddings = try queryPositionHead(referencePoints)
@@ -87,9 +87,9 @@ internal struct PPDocLayoutDecoder: Sendable {
         }
 
         guard let logits = finalLogits,
-              let predBoxes = finalBoxes,
-              let orderLogits = finalOrderLogits,
-              let outMasks = finalMasks
+            let predBoxes = finalBoxes,
+            let orderLogits = finalOrderLogits,
+            let outMasks = finalMasks
         else {
             throw PPDocLayoutMLXError.modelInitializationFailed(
                 "Decoder produced no outputs"
@@ -252,7 +252,7 @@ internal struct PPDocLayoutDecoder: Sendable {
     ) throws -> MLXArray {
         var hidden = x
 
-        for layerIndex in 0 ..< numLayers {
+        for layerIndex in 0..<numLayers {
             let weight = try weights.tensor("\(prefix).\(layerIndex).weight")
             let bias = try weights.tensor("\(prefix).\(layerIndex).bias")
             hidden = PPDocLayoutMLXTensorOps.linear(hidden, weight: weight, bias: bias)

@@ -1,6 +1,6 @@
+import CPDFium
 import CoreGraphics
 import Foundation
-import CPDFium
 
 public struct PDFiumPageRasterizer: Sendable {
     public init() {}
@@ -34,7 +34,7 @@ public struct PDFiumPageRasterizer: Sendable {
             FPDFBitmap_Destroy(bitmap)
         }
 
-        FPDFBitmap_FillRect(bitmap, 0, 0, srcWidthC, srcHeightC, 0xFFFFFFFF)
+        FPDFBitmap_FillRect(bitmap, 0, 0, srcWidthC, srcHeightC, 0xFFFF_FFFF)
         FPDF_RenderPageBitmap(
             bitmap,
             page.handle,
@@ -73,9 +73,9 @@ public struct PDFiumPageRasterizer: Sendable {
     ) -> [UInt8] {
         var rgb = [UInt8](repeating: 0, count: width * height * 3)
 
-        for y in 0 ..< height {
+        for y in 0..<height {
             let rowBase = source.advanced(by: y * stride)
-            for x in 0 ..< width {
+            for x in 0..<width {
                 let srcOffset = x * 3
                 let dstOffset = (y * width + x) * 3
                 rgb[dstOffset] = rowBase[srcOffset + 2]
@@ -97,7 +97,7 @@ public struct PDFiumPageRasterizer: Sendable {
         }
 
         var rgba = [UInt8](repeating: 255, count: width * height * 4)
-        for idx in 0 ..< (width * height) {
+        for idx in 0..<(width * height) {
             let rgbOffset = idx * 3
             let rgbaOffset = idx * 4
             rgba[rgbaOffset] = bytes[rgbOffset]
@@ -108,15 +108,17 @@ public struct PDFiumPageRasterizer: Sendable {
         let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
 
-        guard let context = CGContext(
-            data: &rgba,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let context = CGContext(
+                data: &rgba,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             return nil
         }
 

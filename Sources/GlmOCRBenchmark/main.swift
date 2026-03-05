@@ -1,5 +1,4 @@
 import Foundation
-
 import GlmOCRSwift
 
 private struct BenchmarkOutput: Codable {
@@ -100,24 +99,32 @@ struct GlmOCRBenchmarkCLI {
             case "--max-pages":
                 index += 1
                 guard index < args.count else { throw CLIError.missingValue("--max-pages") }
-                guard let parsed = Int(args[index]) else { throw CLIError.invalidValue(arg: "--max-pages", value: args[index]) }
+                guard let parsed = Int(args[index]) else {
+                    throw CLIError.invalidValue(arg: "--max-pages", value: args[index])
+                }
                 maxPages = parsed
             case "--disable-layout":
                 disableLayout = true
             case "--max-concurrent":
                 index += 1
                 guard index < args.count else { throw CLIError.missingValue("--max-concurrent") }
-                guard let parsed = Int(args[index]) else { throw CLIError.invalidValue(arg: "--max-concurrent", value: args[index]) }
+                guard let parsed = Int(args[index]) else {
+                    throw CLIError.invalidValue(arg: "--max-concurrent", value: args[index])
+                }
                 maxConcurrentRecognitions = parsed
             case "--batch-size":
                 index += 1
                 guard index < args.count else { throw CLIError.missingValue("--batch-size") }
-                guard let parsed = Int(args[index]) else { throw CLIError.invalidValue(arg: "--batch-size", value: args[index]) }
+                guard let parsed = Int(args[index]) else {
+                    throw CLIError.invalidValue(arg: "--batch-size", value: args[index])
+                }
                 inferenceBatchSize = parsed
             case "--inflight":
                 index += 1
                 guard index < args.count else { throw CLIError.missingValue("--inflight") }
-                guard let parsed = Int(args[index]) else { throw CLIError.invalidValue(arg: "--inflight", value: args[index]) }
+                guard let parsed = Int(args[index]) else {
+                    throw CLIError.invalidValue(arg: "--inflight", value: args[index])
+                }
                 inferenceMaxInflightJobs = parsed
             case "--help", "-h":
                 printUsageAndExit()
@@ -139,14 +146,14 @@ struct GlmOCRBenchmarkCLI {
 
     private static func printUsageAndExit() -> Never {
         let usage = """
-        Usage: swift run GlmOCRBenchmark [options]
-          --pdf <path>             PDF input path (default: /Users/tansanrao/work/glm-ocr-swift/test-arxiv-paper.pdf)
-          --max-pages <n>          Optional page cap
-          --disable-layout         Run OCR without layout detection
-          --max-concurrent <n>     Set GlmOCRConfig.maxConcurrentRecognitions
-          --batch-size <n>         Set performance.inferenceBatchSize
-          --inflight <n>           Set performance.inferenceMaxInflightJobs
-        """
+            Usage: swift run GlmOCRBenchmark [options]
+              --pdf <path>             PDF input path (default: /Users/tansanrao/work/glm-ocr-swift/test-arxiv-paper.pdf)
+              --max-pages <n>          Optional page cap
+              --disable-layout         Run OCR without layout detection
+              --max-concurrent <n>     Set GlmOCRConfig.maxConcurrentRecognitions
+              --batch-size <n>         Set performance.inferenceBatchSize
+              --inflight <n>           Set performance.inferenceMaxInflightJobs
+            """
         print(usage)
         exit(0)
     }

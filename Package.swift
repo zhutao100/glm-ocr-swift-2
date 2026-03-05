@@ -9,7 +9,7 @@ let package = Package(
     name: "GlmOCRSwift",
     platforms: [
         .iOS(.v17),
-        .macOS(.v14)
+        .macOS(.v14),
     ],
     products: [
         .library(
@@ -19,7 +19,7 @@ let package = Package(
         .executable(
             name: "GlmOCRBenchmark",
             targets: ["GlmOCRBenchmark"]
-        )
+        ),
     ],
     dependencies: [
         .package(
@@ -33,7 +33,7 @@ let package = Package(
         .package(
             url: "https://github.com/DePasqualeOrg/swift-tokenizers.git",
             revision: "dbf45b169dbdfadd0c24ea7a9c5c47e1f311f280"
-        )
+        ),
     ],
     targets: [
         .target(
@@ -44,7 +44,7 @@ let package = Package(
                 "GlmOCRModelDelivery",
                 "GlmOCRFormatting",
                 "GlmOCRRecognizerMLX",
-                .target(name: "GlmOCRPDFium", condition: .when(platforms: [.macOS]))
+                .target(name: "GlmOCRPDFium", condition: .when(platforms: [.macOS])),
             ],
             swiftSettings: strictConcurrency
         ),
@@ -56,7 +56,7 @@ let package = Package(
             name: "GlmOCRLayoutMLX",
             dependencies: [
                 .product(name: "MLX", package: "mlx-swift"),
-                .product(name: "MLXNN", package: "mlx-swift")
+                .product(name: "MLXNN", package: "mlx-swift"),
             ],
             swiftSettings: strictConcurrency
         ),
@@ -79,7 +79,7 @@ let package = Package(
             dependencies: [
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
-                .product(name: "Tokenizers", package: "swift-tokenizers")
+                .product(name: "Tokenizers", package: "swift-tokenizers"),
             ],
             swiftSettings: strictConcurrency
         ),
@@ -87,7 +87,7 @@ let package = Package(
             name: "GlmOCRPDFium",
             dependencies: [
                 "CPDFium",
-                .target(name: "PDFiumBinary", condition: .when(platforms: [.macOS]))
+                .target(name: "PDFiumBinary", condition: .when(platforms: [.macOS])),
             ],
             swiftSettings: strictConcurrency
         ),
@@ -103,7 +103,7 @@ let package = Package(
             name: "GlmOCRTests",
             dependencies: [
                 "GlmOCRSwift",
-                "GlmOCRRecognizerMLX"
+                "GlmOCRRecognizerMLX",
             ],
             swiftSettings: strictConcurrency
         ),
@@ -113,7 +113,7 @@ let package = Package(
                 "GlmOCRSwift"
             ],
             swiftSettings: strictConcurrency
-        )
+        ),
     ],
     swiftLanguageModes: [.v6]
 )

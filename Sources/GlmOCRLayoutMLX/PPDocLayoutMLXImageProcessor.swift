@@ -3,7 +3,8 @@ import Foundation
 import MLX
 
 internal enum PPDocLayoutMLXImageProcessor {
-    private nonisolated static let traceEnabled = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
+    private nonisolated static let traceEnabled =
+        ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
 
     internal static func pixelValues(from image: CGImage) throws -> MLXArray {
         let width = PPDocLayoutMLXContract.inputShape[3]
@@ -18,15 +19,17 @@ internal enum PPDocLayoutMLXImageProcessor {
             }
 
             let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
-            guard let context = CGContext(
-                data: baseAddress,
-                width: width,
-                height: height,
-                bitsPerComponent: 8,
-                bytesPerRow: width * 4,
-                space: CGColorSpaceCreateDeviceRGB(),
-                bitmapInfo: bitmapInfo
-            ) else {
+            guard
+                let context = CGContext(
+                    data: baseAddress,
+                    width: width,
+                    height: height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: width * 4,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: bitmapInfo
+                )
+            else {
                 return false
             }
 
@@ -42,7 +45,7 @@ internal enum PPDocLayoutMLXImageProcessor {
         let hw = width * height
         var chw = [Float](repeating: 0, count: hw * 3)
 
-        for offset in 0 ..< hw {
+        for offset in 0..<hw {
             let rgbaOffset = offset * 4
             chw[offset] = Float(rgba[rgbaOffset]) / 255.0
             chw[hw + offset] = Float(rgba[rgbaOffset + 1]) / 255.0

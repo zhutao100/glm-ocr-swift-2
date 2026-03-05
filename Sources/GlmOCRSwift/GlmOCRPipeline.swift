@@ -1,10 +1,9 @@
 import CoreGraphics
 import CryptoKit
 import Foundation
+import GlmOCRModelDelivery
 import ImageIO
 import UniformTypeIdentifiers
-
-import GlmOCRModelDelivery
 
 public actor GlmOCRPipeline {
     public nonisolated let config: GlmOCRConfig
@@ -15,7 +14,8 @@ public actor GlmOCRPipeline {
     private let regionRecognizer: any RegionRecognizer
     private let regionCropper: any PipelineRegionCropping
     private let formatter: PipelineFormatter
-    private nonisolated static let pipelineTraceEnabled = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
+    private nonisolated static let pipelineTraceEnabled =
+        ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PIPELINE_TRACE"] == "1"
 
     public init(config: GlmOCRConfig) async throws {
         let modelManager: SandboxModelManager
@@ -294,7 +294,7 @@ public actor GlmOCRPipeline {
                 "tablePromptHash": truncatedSHA256(config.prompts.tablePrompt),
                 "formulaPromptHash": truncatedSHA256(config.prompts.formulaPrompt),
                 "pageRenderDebugDump": pageRenderDebug.path ?? "nil",
-                "pageRenderDebugCount": pageRenderDebug.path == nil ? "0" : String(pageRenderDebug.count)
+                "pageRenderDebugCount": pageRenderDebug.path == nil ? "0" : String(pageRenderDebug.count),
             ]
         } else {
             metadata = [:]
@@ -421,13 +421,15 @@ public actor GlmOCRPipeline {
         var stats = OCRPreprocessStats()
         var ocrPreprocessDebugEntries: [[String: Any]] = []
         let ocrPreprocessDumpPath = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_OCR_PREPROCESS_DUMP"]
-        let shouldDumpOCRPreprocess = ocrPreprocessDumpPath?
+        let shouldDumpOCRPreprocess =
+            ocrPreprocessDumpPath?
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .isEmpty == false
 
         let limiter = AsyncLimiter(limit: performanceConfig.ocrPreprocessConcurrency)
         let cropper = regionCropper
-        let pageOutputs: [OCRPreprocessPageOutput] = try await withThrowingTaskGroup(of: OCRPreprocessPageOutput.self) { group in
+        let pageOutputs: [OCRPreprocessPageOutput] = try await withThrowingTaskGroup(of: OCRPreprocessPageOutput.self) {
+            group in
             for unit in units {
                 group.addTask {
                     try await limiter.withPermit {
@@ -463,13 +465,14 @@ public actor GlmOCRPipeline {
             stats.recognitionFormulaJobCount += output.recognitionFormulaJobCount
         }
 
-        stats.recognitionJobCount = stats.recognitionTextJobCount
+        stats.recognitionJobCount =
+            stats.recognitionTextJobCount
             + stats.recognitionTableJobCount
             + stats.recognitionFormulaJobCount
 
         if let ocrPreprocessDumpPath,
-           !ocrPreprocessDumpPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-           let data = try? JSONSerialization.data(withJSONObject: ocrPreprocessDebugEntries, options: [.prettyPrinted])
+            !ocrPreprocessDumpPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            let data = try? JSONSerialization.data(withJSONObject: ocrPreprocessDebugEntries, options: [.prettyPrinted])
         {
             try? data.write(to: URL(fileURLWithPath: ocrPreprocessDumpPath), options: .atomic)
         }
@@ -514,16 +517,18 @@ public actor GlmOCRPipeline {
                 content: nil
             )
 
-            let debugEntry: [String: Any]? = shouldDumpDebugEntries ? [
-                "pageIndex": unit.pageIndex,
-                "detectionIndex": detection.index,
-                "order": detection.order,
-                "regionPosition": regionPosition,
-                "task": detection.task.rawValue,
-                "nativeLabel": detection.label,
-                "bbox2D": detection.bbox2D,
-                "polygon2D": detection.polygon2D
-            ] : nil
+            let debugEntry: [String: Any]? =
+                shouldDumpDebugEntries
+                ? [
+                    "pageIndex": unit.pageIndex,
+                    "detectionIndex": detection.index,
+                    "order": detection.order,
+                    "regionPosition": regionPosition,
+                    "task": detection.task.rawValue,
+                    "nativeLabel": detection.label,
+                    "bbox2D": detection.bbox2D,
+                    "polygon2D": detection.polygon2D,
+                ] : nil
 
             if let ocrTask = detection.task.ocrTask {
                 do {
@@ -654,7 +659,7 @@ public actor GlmOCRPipeline {
 
         for (key, result) in inferenceResults.results {
             guard key.pageIndex < mergedPageRegions.count,
-                  key.regionPosition < mergedPageRegions[key.pageIndex].count
+                key.regionPosition < mergedPageRegions[key.pageIndex].count
             else {
                 continue
             }
@@ -692,8 +697,8 @@ public actor GlmOCRPipeline {
         promptRecognizer: (any PromptRegionRecognizing)?
     ) async throws -> String {
         if let promptRecognizer,
-           let prompt = job.promptOverride?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !prompt.isEmpty
+            let prompt = job.promptOverride?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !prompt.isEmpty
         {
             return try await promptRecognizer.recognize(job.image, prompt: prompt)
         }
@@ -703,7 +708,7 @@ public actor GlmOCRPipeline {
 
     private func resolvedPrompt(for job: PipelineRecognitionJob) -> String {
         if let prompt = job.promptOverride?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !prompt.isEmpty
+            !prompt.isEmpty
         {
             return prompt
         }
@@ -808,11 +813,13 @@ public actor GlmOCRPipeline {
                             figuresDirectoryName: figuresDirectoryName,
                             heicCompressionQuality: heicCompressionQuality
                         )
-                    }) ?? MarkdownBundleFigureOutput(
-                        candidateIndex: candidateIndex,
-                        figure: nil,
-                        warning: "bundle.figure encode failed: page=\(candidate.pageIndex) region=\(candidate.regionIndex)"
-                    )
+                    })
+                        ?? MarkdownBundleFigureOutput(
+                            candidateIndex: candidateIndex,
+                            figure: nil,
+                            warning:
+                                "bundle.figure encode failed: page=\(candidate.pageIndex) region=\(candidate.regionIndex)"
+                        )
                 }
             }
 
@@ -889,14 +896,17 @@ public actor GlmOCRPipeline {
             return MarkdownBundleFigureOutput(
                 candidateIndex: candidateIndex,
                 figure: nil,
-                warning: "bundle.figure page index out of range: page=\(candidate.pageIndex) region=\(candidate.regionIndex)"
+                warning:
+                    "bundle.figure page index out of range: page=\(candidate.pageIndex) region=\(candidate.regionIndex)"
             )
         }
 
-        guard let cropped = Self.cropFigure(
-            from: pages[candidate.pageIndex],
-            bbox2D: candidate.bbox2D
-        ) else {
+        guard
+            let cropped = Self.cropFigure(
+                from: pages[candidate.pageIndex],
+                bbox2D: candidate.bbox2D
+            )
+        else {
             return MarkdownBundleFigureOutput(
                 candidateIndex: candidateIndex,
                 figure: nil,
@@ -904,11 +914,13 @@ public actor GlmOCRPipeline {
             )
         }
 
-        guard let encoded = Self.encodeFigure(
-            image: cropped,
-            format: figureFormat,
-            heicCompressionQuality: heicCompressionQuality
-        ) else {
+        guard
+            let encoded = Self.encodeFigure(
+                image: cropped,
+                format: figureFormat,
+                heicCompressionQuality: heicCompressionQuality
+            )
+        else {
             return MarkdownBundleFigureOutput(
                 candidateIndex: candidateIndex,
                 figure: nil,
@@ -976,12 +988,14 @@ public actor GlmOCRPipeline {
         switch format {
         case .heic:
             let data = NSMutableData()
-            guard let destination = CGImageDestinationCreateWithData(
-                data,
-                UTType.heic.identifier as CFString,
-                1,
-                nil
-            ) else {
+            guard
+                let destination = CGImageDestinationCreateWithData(
+                    data,
+                    UTType.heic.identifier as CFString,
+                    1,
+                    nil
+                )
+            else {
                 return nil
             }
 
@@ -1066,7 +1080,7 @@ public actor GlmOCRPipeline {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         guard let data = try? encoder.encode(sidecar),
-              let json = String(data: data, encoding: .utf8)
+            let json = String(data: data, encoding: .utf8)
         else {
             return "{}"
         }
@@ -1138,8 +1152,9 @@ public actor GlmOCRPipeline {
         guard case .pdfData = input else {
             return (nil, 0)
         }
-        guard let dumpPath = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PAGE_RENDER_DUMP"]?
-            .trimmingCharacters(in: .whitespacesAndNewlines),
+        guard
+            let dumpPath = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_PAGE_RENDER_DUMP"]?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
             !dumpPath.isEmpty
         else {
             return (nil, 0)
@@ -1149,7 +1164,7 @@ public actor GlmOCRPipeline {
             var payload: [String: Any] = [
                 "pageIndex": index,
                 "width": image.width,
-                "height": image.height
+                "height": image.height,
             ]
             if let metadata = Self.cropDebugMetadata(for: image) {
                 payload["rgbSHA256"] = metadata.sha256
@@ -1160,7 +1175,7 @@ public actor GlmOCRPipeline {
         }
 
         if JSONSerialization.isValidJSONObject(entries),
-           let data = try? JSONSerialization.data(withJSONObject: entries, options: [.prettyPrinted])
+            let data = try? JSONSerialization.data(withJSONObject: entries, options: [.prettyPrinted])
         {
             try? data.write(to: URL(fileURLWithPath: dumpPath), options: .atomic)
         }
@@ -1187,15 +1202,17 @@ public actor GlmOCRPipeline {
         let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
 
-        guard let context = CGContext(
-            data: &rgba,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let context = CGContext(
+                data: &rgba,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             return nil
         }
 
@@ -1203,7 +1220,7 @@ public actor GlmOCRPipeline {
         context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
 
         var rgb = [UInt8](repeating: 0, count: width * height * 3)
-        for pixel in 0 ..< (width * height) {
+        for pixel in 0..<(width * height) {
             let rgbaOffset = pixel * 4
             let rgbOffset = pixel * 3
             rgb[rgbOffset] = rgba[rgbaOffset]
@@ -1217,8 +1234,9 @@ public actor GlmOCRPipeline {
     }
 
     private func dumpOCRPostprocessInputIfRequested(pageRegions: [[PipelineRegionRecord]]) {
-        guard let dumpPath = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_OCR_POSTPROCESS_INPUT_DUMP"]?
-            .trimmingCharacters(in: .whitespacesAndNewlines),
+        guard
+            let dumpPath = ProcessInfo.processInfo.environment["GLMOCR_DEBUG_OCR_POSTPROCESS_INPUT_DUMP"]?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
             !dumpPath.isEmpty
         else {
             return
@@ -1229,7 +1247,7 @@ public actor GlmOCRPipeline {
                 var entry: [String: Any] = [
                     "index": region.index,
                     "nativeLabel": region.nativeLabel,
-                    "task": region.task.rawValue
+                    "task": region.task.rawValue,
                 ]
                 if let bbox2D = region.bbox2D {
                     entry["bbox2D"] = bbox2D
@@ -1246,7 +1264,7 @@ public actor GlmOCRPipeline {
         }
 
         guard JSONSerialization.isValidJSONObject(payload),
-              let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted])
+            let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted])
         else {
             return
         }

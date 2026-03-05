@@ -73,7 +73,7 @@ internal struct PPDocLayoutAttention: Sendable {
 
         var levelStartIndex = [Int](repeating: 0, count: numLevels)
         var cursor = 0
-        for level in 0 ..< numLevels {
+        for level in 0..<numLevels {
             levelStartIndex[level] = cursor
             cursor += spatialShapes[level].height * spatialShapes[level].width
         }
@@ -83,15 +83,15 @@ internal struct PPDocLayoutAttention: Sendable {
             count: batch * queryCount * numHeads * headDim
         )
 
-        for batchIndex in 0 ..< batch {
-            for queryIndex in 0 ..< queryCount {
-                for headIndex in 0 ..< numHeads {
-                    for levelIndex in 0 ..< numLevels {
+        for batchIndex in 0..<batch {
+            for queryIndex in 0..<queryCount {
+                for headIndex in 0..<numHeads {
+                    for levelIndex in 0..<numLevels {
                         let levelHeight = spatialShapes[levelIndex].height
                         let levelWidth = spatialShapes[levelIndex].width
                         let levelStart = levelStartIndex[levelIndex]
 
-                        for pointIndex in 0 ..< numPoints {
+                        for pointIndex in 0..<numPoints {
                             let attnWeight = attentionWeightsArray[
                                 attentionWeightIndex(
                                     batch: batchIndex,
@@ -166,7 +166,7 @@ internal struct PPDocLayoutAttention: Sendable {
                             let wx0 = 1 - wx1
                             let wy0 = 1 - wy1
 
-                            for dimension in 0 ..< headDim {
+                            for dimension in 0..<headDim {
                                 let outputIndex = outputTensorIndex(
                                     batch: batchIndex,
                                     query: queryIndex,

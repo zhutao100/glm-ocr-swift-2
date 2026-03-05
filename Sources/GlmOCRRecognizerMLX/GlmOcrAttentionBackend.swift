@@ -144,16 +144,16 @@ private func resolvedMaskArray(
         return nil
     case .causal:
         return causalMask(queryLength: queryLength, keyLength: keyLength)
-    case let .array(array):
+    case .array(let array):
         return array
-    case let .arrays(arrays):
+    case .arrays(let arrays):
         return arrays.first
     }
 }
 
 private func causalMask(queryLength: Int, keyLength: Int) -> MLXArray {
     let offset = keyLength - queryLength
-    let queryPositions = expandedDimensions(MLXArray(offset ..< (offset + queryLength)), axis: 1)
-    let keyPositions = expandedDimensions(MLXArray(0 ..< keyLength), axis: 0)
+    let queryPositions = expandedDimensions(MLXArray(offset..<(offset + queryLength)), axis: 1)
+    let keyPositions = expandedDimensions(MLXArray(0..<keyLength), axis: 0)
     return queryPositions .>= keyPositions
 }

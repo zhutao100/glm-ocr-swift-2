@@ -4,7 +4,7 @@ public enum GlmOcrRecognizerConfigLoader {
     public static func loadBundle(modelDirectory: URL) throws -> GlmOcrModelBundle {
         var isDirectory = ObjCBool(false)
         guard FileManager.default.fileExists(atPath: modelDirectory.path, isDirectory: &isDirectory),
-              isDirectory.boolValue
+            isDirectory.boolValue
         else {
             throw GlmOcrRecognizerMLXError.invalidModelDirectory(modelDirectory.path)
         }

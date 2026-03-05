@@ -1,6 +1,5 @@
 import CoreGraphics
 import Foundation
-
 import GlmOCRRecognizerMLX
 
 internal protocol GLMInferenceContainer: Sendable {}
@@ -101,32 +100,39 @@ internal struct MLXGLMInferenceClient: GLMInferenceClient {
 
     private func cachedSnapshotDirectory(for modelID: String) -> URL? {
         let sanitized = modelID.replacingOccurrences(of: "/", with: "--")
-        guard let appSupportDirectory = FileManager.default.urls(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask
-        ).first else {
+        guard
+            let appSupportDirectory = FileManager.default.urls(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask
+            ).first
+        else {
             return nil
         }
 
-        let snapshotsRoot = appSupportDirectory
+        let snapshotsRoot =
+            appSupportDirectory
             .appending(path: "GlmOCRSwift")
             .appending(path: "huggingface")
             .appending(path: "hub")
             .appending(path: "models--\(sanitized)")
             .appending(path: "snapshots")
 
-        guard let candidates = try? FileManager.default.contentsOfDirectory(
-            at: snapshotsRoot,
-            includingPropertiesForKeys: [.contentModificationDateKey],
-            options: [.skipsHiddenFiles]
-        ) else {
+        guard
+            let candidates = try? FileManager.default.contentsOfDirectory(
+                at: snapshotsRoot,
+                includingPropertiesForKeys: [.contentModificationDateKey],
+                options: [.skipsHiddenFiles]
+            )
+        else {
             return nil
         }
 
         let ranked = candidates.sorted { lhs, rhs in
-            let lhsDate = (try? lhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
+            let lhsDate =
+                (try? lhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
                 ?? .distantPast
-            let rhsDate = (try? rhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
+            let rhsDate =
+                (try? rhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
                 ?? .distantPast
             return lhsDate > rhsDate
         }

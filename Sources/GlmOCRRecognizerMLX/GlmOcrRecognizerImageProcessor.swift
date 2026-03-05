@@ -1,6 +1,6 @@
 import Accelerate
-import CoreImage
 import CoreGraphics
+import CoreImage
 import Foundation
 import MLX
 
@@ -109,8 +109,8 @@ internal enum GlmOcrRecognizerImageProcessor {
         var chw = [Float](repeating: 0, count: pixelCount * 3)
         let channelStride = pixelCount
 
-        for y in 0 ..< targetHeight {
-            for x in 0 ..< targetWidth {
+        for y in 0..<targetHeight {
+            for x in 0..<targetWidth {
                 let pixelIndex = (y * targetWidth + x)
                 let base = pixelIndex * 4
 
@@ -142,15 +142,17 @@ internal enum GlmOcrRecognizerImageProcessor {
         let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
 
         var source = [UInt8](repeating: 0, count: sourceWidth * sourceHeight * 4)
-        guard let sourceContext = CGContext(
-            data: &source,
-            width: sourceWidth,
-            height: sourceHeight,
-            bitsPerComponent: 8,
-            bytesPerRow: sourceWidth * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let sourceContext = CGContext(
+                data: &source,
+                width: sourceWidth,
+                height: sourceHeight,
+                bitsPerComponent: 8,
+                bytesPerRow: sourceWidth * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             throw GlmOcrRecognizerMLXError.processingFailed("Unable to create source bitmap context")
         }
 
@@ -249,15 +251,17 @@ internal enum GlmOcrRecognizerImageProcessor {
 
         var raw = [UInt8](repeating: 0, count: targetWidth * targetHeight * 4)
         let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
-        guard let bitmapContext = CGContext(
-            data: &raw,
-            width: targetWidth,
-            height: targetHeight,
-            bitsPerComponent: 8,
-            bytesPerRow: targetWidth * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard
+            let bitmapContext = CGContext(
+                data: &raw,
+                width: targetWidth,
+                height: targetHeight,
+                bitsPerComponent: 8,
+                bytesPerRow: targetWidth * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else {
             return nil
         }
 

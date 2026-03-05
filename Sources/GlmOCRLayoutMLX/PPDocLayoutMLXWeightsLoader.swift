@@ -53,7 +53,7 @@ internal actor PPDocLayoutMLXWeightsLoader {
         let candidateURL = URL(fileURLWithPath: modelID)
         var isDirectory = ObjCBool(false)
         if FileManager.default.fileExists(atPath: candidateURL.path, isDirectory: &isDirectory),
-           isDirectory.boolValue
+            isDirectory.boolValue
         {
             return candidateURL
         }
@@ -70,7 +70,8 @@ internal actor PPDocLayoutMLXWeightsLoader {
             options: [.skipsHiddenFiles]
         )
 
-        return contents
+        return
+            contents
             .filter { $0.pathExtension == "safetensors" }
             .sorted { $0.lastPathComponent < $1.lastPathComponent }
     }

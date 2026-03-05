@@ -221,7 +221,7 @@ internal enum PPDocLayoutMLXTensorOps {
                 0,
                 0,
                 .init((top, bottom)),
-                .init((left, right))
+                .init((left, right)),
             ],
             mode: .constant,
             value: MLXArray(value)

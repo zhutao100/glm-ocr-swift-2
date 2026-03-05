@@ -81,7 +81,7 @@ struct GlmOCRBenchmarkCLI {
     }
 
     private static func parseArguments(_ args: [String]) throws -> CLIArguments {
-        var pdfPath = "/Users/tansanrao/work/glm-ocr-swift/test-arxiv-paper.pdf"
+        var pdfPath: String = ""
         var maxPages: Int?
         var disableLayout = false
         var maxConcurrentRecognitions: Int?
@@ -147,7 +147,7 @@ struct GlmOCRBenchmarkCLI {
     private static func printUsageAndExit() -> Never {
         let usage = """
             Usage: swift run GlmOCRBenchmark [options]
-              --pdf <path>             PDF input path (default: /Users/tansanrao/work/glm-ocr-swift/test-arxiv-paper.pdf)
+              --pdf <path>             PDF input path
               --max-pages <n>          Optional page cap
               --disable-layout         Run OCR without layout detection
               --max-concurrent <n>     Set GlmOCRConfig.maxConcurrentRecognitions

@@ -58,7 +58,9 @@ final class GlmOcrAttentionBackendTests: XCTestCase {
         XCTAssertEqual(output.shape, [1, 2, 1, 64])
     }
 
-    func testFallbackAttentionHandlesZeroLengthQuery() {
+    func testFallbackAttentionHandlesZeroLengthQuery() throws{
+        try ensureMLXMetalLibraryColocated(for: Self.self)
+
         let queries = MLXArray.zeros([1, 2, 0, 64], dtype: .float32)
         let keys = MLXArray.zeros([1, 1, 0, 64], dtype: .float32)
         let values = MLXArray.zeros([1, 1, 0, 64], dtype: .float32)

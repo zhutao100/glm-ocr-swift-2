@@ -40,51 +40,15 @@ internal enum GLMRecognizerDebugTools {
     }
 
     private static func resolveModelDirectory(modelID: String) throws -> URL {
-        let direct = URL(fileURLWithPath: modelID)
-        var isDirectory = ObjCBool(false)
-
-        if FileManager.default.fileExists(atPath: direct.path, isDirectory: &isDirectory), isDirectory.boolValue {
+        let trimmed = modelID.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let direct = GLMModelDirectoryLookup.resolveDirectoryIfPresent(path: trimmed) {
             return direct
         }
 
-        let sanitized = modelID.replacingOccurrences(of: "/", with: "--")
-        guard
-            let appSupportDirectory = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            ).first
-        else {
-            throw GLMInferenceClientError.unresolvedModelDirectory(modelID)
+        if let cached = GLMModelDirectoryLookup.cachedSnapshotDirectory(for: trimmed) {
+            return cached
         }
 
-        let snapshotsRoot =
-            appSupportDirectory
-            .appending(path: "GlmOCRSwift")
-            .appending(path: "huggingface")
-            .appending(path: "hub")
-            .appending(path: "models--\(sanitized)")
-            .appending(path: "snapshots")
-
-        guard
-            let candidates = try? FileManager.default.contentsOfDirectory(
-                at: snapshotsRoot,
-                includingPropertiesForKeys: [.contentModificationDateKey],
-                options: [.skipsHiddenFiles]
-            ), !candidates.isEmpty
-        else {
-            throw GLMInferenceClientError.unresolvedModelDirectory(modelID)
-        }
-
-        let ranked = candidates.sorted { lhs, rhs in
-            let lhsDate =
-                (try? lhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
-                ?? .distantPast
-            let rhsDate =
-                (try? rhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
-                ?? .distantPast
-            return lhsDate > rhsDate
-        }
-
-        return ranked[0]
+        throw GLMInferenceClientError.unresolvedModelDirectory(trimmed)
     }
 }

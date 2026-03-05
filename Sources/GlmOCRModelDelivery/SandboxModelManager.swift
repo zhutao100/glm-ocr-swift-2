@@ -261,7 +261,7 @@ public actor SandboxModelManager: ModelDeliveryManaging {
     }
 
     private func existingDirectory(at path: String) -> URL? {
-        let url = URL(fileURLWithPath: path)
+        let url = URL(fileURLWithPath: path).resolvingSymlinksInPath()
         var isDirectory = ObjCBool(false)
 
         guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue else {

@@ -45,14 +45,15 @@ internal struct MLXGLMInferenceClient: GLMInferenceClient {
     internal init() {}
 
     internal func loadContainer(modelID: String) async throws -> any GLMInferenceContainer {
+        let trimmedModelID = modelID.trimmingCharacters(in: .whitespacesAndNewlines)
         let resolvedDirectory: URL
-        let candidateDirectory = URL(fileURLWithPath: modelID)
-        if FileManager.default.fileExists(atPath: candidateDirectory.path) {
-            resolvedDirectory = candidateDirectory
-        } else if let cached = cachedSnapshotDirectory(for: modelID) {
+
+        if let direct = GLMModelDirectoryLookup.resolveDirectoryIfPresent(path: trimmedModelID) {
+            resolvedDirectory = direct
+        } else if let cached = GLMModelDirectoryLookup.cachedSnapshotDirectory(for: trimmedModelID) {
             resolvedDirectory = cached
         } else {
-            throw GLMInferenceClientError.unresolvedModelDirectory(modelID)
+            throw GLMInferenceClientError.unresolvedModelDirectory(trimmedModelID)
         }
 
         let runtime = try await GlmOcrRecognizerRuntime(modelDirectory: resolvedDirectory)
@@ -96,47 +97,5 @@ internal struct MLXGLMInferenceClient: GLMInferenceClient {
             requests: runtimeRequests,
             options: generationOptions
         )
-    }
-
-    private func cachedSnapshotDirectory(for modelID: String) -> URL? {
-        let sanitized = modelID.replacingOccurrences(of: "/", with: "--")
-        guard
-            let appSupportDirectory = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            ).first
-        else {
-            return nil
-        }
-
-        let snapshotsRoot =
-            appSupportDirectory
-            .appending(path: "GlmOCRSwift")
-            .appending(path: "huggingface")
-            .appending(path: "hub")
-            .appending(path: "models--\(sanitized)")
-            .appending(path: "snapshots")
-
-        guard
-            let candidates = try? FileManager.default.contentsOfDirectory(
-                at: snapshotsRoot,
-                includingPropertiesForKeys: [.contentModificationDateKey],
-                options: [.skipsHiddenFiles]
-            )
-        else {
-            return nil
-        }
-
-        let ranked = candidates.sorted { lhs, rhs in
-            let lhsDate =
-                (try? lhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
-                ?? .distantPast
-            let rhsDate =
-                (try? rhs.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate)
-                ?? .distantPast
-            return lhsDate > rhsDate
-        }
-
-        return ranked.first
     }
 }

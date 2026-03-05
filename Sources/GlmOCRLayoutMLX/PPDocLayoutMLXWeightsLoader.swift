@@ -50,7 +50,7 @@ internal actor PPDocLayoutMLXWeightsLoader {
     }
 
     private func resolveModelDirectory(modelID: String) async throws -> URL {
-        let candidateURL = URL(fileURLWithPath: modelID)
+        let candidateURL = URL(fileURLWithPath: modelID).resolvingSymlinksInPath()
         var isDirectory = ObjCBool(false)
         if FileManager.default.fileExists(atPath: candidateURL.path, isDirectory: &isDirectory),
             isDirectory.boolValue

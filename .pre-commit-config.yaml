@@ -1,0 +1,42 @@
+minimum_pre_commit_version: "3.6.0"
+default_stages: [pre-commit]
+fail_fast: true
+
+exclude: ^(examples/)
+
+repos:
+  - repo: local
+    hooks:
+      - id: swift-format-autostage
+        name: swift-format (autofix + autostage + strict lint)
+        language: system
+        entry: scripts/precommit_swift_format_autostage.sh
+        files: \.swift$
+        pass_filenames: false
+        require_serial: true
+
+        exclude: |
+          (?x)^(
+            \.build/|
+            DerivedData/|
+            Carthage/|
+            Pods/|
+            .*\.generated\.swift
+          )
+
+  # Secrets scanning (fast, no baseline)
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+  # Basic hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
